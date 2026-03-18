@@ -1,0 +1,57 @@
+// Learning MFE-specific font overrides for course-authored content
+// This file can be imported only by frontend-app-learning and other course-delivery MFEs.
+// Other MFEs (authn, account, discussions, etc.) won't need these selectors.
+
+// User-uploaded / course-authored content uses Jomolhari for Tibetan characters.
+// Jomolhari has unicode-range: U+0F00-0FFF, so it only activates for Tibetan characters.
+// English/Latin characters in these elements fall through to the sans-serif fallbacks unchanged.
+.user-content,
+.xblock-content,
+.xblock,
+.xblock-student-view,
+.vert-mod,
+.vert,
+.xmodule_display,
+.problem-content,
+.problem-header,
+.course-content,
+.discussion-post,
+.discussion-comment,
+.user-generated-content,
+textarea,
+.editor-content,
+[contenteditable="true"],
+// Breadcrumbs show course-authored section/sequence/unit names
+nav[aria-label="breadcrumb"],
+nav[aria-label="breadcrumb"] a,
+nav[aria-label="breadcrumb"] li,
+// Unit tab titles in sequence navigation
+.unit-title,
+// Outline section and sequence titles
+.outline-section-header,
+.outline-item-header,
+.date-summary-text,
+// Section and subsection titles in course outline
+.accordion-button,
+.collapsible-trigger,
+button[aria-expanded],
+.outline-section-header h3,
+.outline-item-header h4,
+.section-title,
+.subsection-title,
+.courseware-search-results__breadcrumbs,
+.courseware-search-results__title,
+// Course sidebar content
+.sidebar-xblock-wrapper,
+// Course title heading in page title
+.course-title,
+// All headings in course content
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+// Page header and main section titles
+.page-header,
+.page-header h1,
+.sequence-title,
+.sequence-header {
+    font-family: 'Jomolhari', 'Noto Serif Tibetan', "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
