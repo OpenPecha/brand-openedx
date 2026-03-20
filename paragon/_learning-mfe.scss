@@ -5,6 +5,7 @@
 // User-uploaded / course-authored content uses Jomolhari for Tibetan characters.
 // Jomolhari has unicode-range: U+0F00-0FFF, so it only activates for Tibetan characters.
 // English/Latin characters in these elements fall through to the sans-serif fallbacks unchanged.
+
 .user-content,
 .xblock-content,
 .xblock,
@@ -30,15 +31,9 @@ nav[aria-label="breadcrumb"] li,
 // Outline section and sequence titles
 .outline-section-header,
 .outline-item-header,
-.date-summary-text,
-// Section and subsection titles in course outline
-.accordion-button,
-.collapsible-trigger,
-button[aria-expanded],
-.outline-section-header h3,
-.outline-item-header h4,
 .section-title,
-.subsection-title,
+.sequence-title,
+.date-summary-text,
 .courseware-search-results__breadcrumbs,
 .courseware-search-results__title,
 // Course sidebar content
@@ -51,7 +46,15 @@ h1, h2, h3, h4, h5, h6,
 // Page header and main section titles
 .page-header,
 .page-header h1,
-.sequence-title,
 .sequence-header {
     font-family: 'Jomolhari', 'Noto Serif Tibetan', "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+// Increase font sizes for section and subsection titles (since Jomolhari can look small)
+.section-title {
+    font-size: 1.35rem;
+}
+
+.sequence-title {
+    font-size: 1.25rem;
 }
