@@ -3,5 +3,11 @@
 
 // Noto Serif Tibetan activates only for Tibetan chars (unicode-range: U+0F00-0FFF).
 // English/Latin chars fall through to the explicit sans-serif fallbacks below.
-$font-family-sans-serif: 'Noto Serif Tibetan', "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-noto-serif-tibetan: 'Noto Serif Tibetan';
+$font-family-jomolhari: 'Jomolhari';
+$font-family-sans-serif: $font-family-noto-serif-tibetan, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 $font-family-base: $font-family-sans-serif;
+$font-family-course-content: $font-family-jomolhari, $font-family-sans-serif;
+
+$learning-section-title-font-size: 1.35rem;
+$learning-sequence-title-font-size: 1.25rem;
