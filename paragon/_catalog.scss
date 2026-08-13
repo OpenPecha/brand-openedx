@@ -1,1 +1,109 @@
 // Catalog MFE-specific overrides.
+
+@use "./variables" as brand;
+
+// Schools and partners carousel (homepage banner slot).
+//
+// Layout note: the track is deliberately wider than its viewport — it holds
+// --pc-window logos while only --pc-per-view of them fit, leaving one
+// off-screen either side to slide in from. Those two counts and the slide
+// duration are set as inline custom properties by the React component, so
+// nothing here needs measuring in JS and it stays correct on resize.
+.partner-carousel {
+  padding: brand.$spacing-12 0;
+  background: brand.$body-bg;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: brand.$spacing-3;
+    max-width: 75rem;
+    margin: 0 auto;
+    padding: 0 brand.$spacing-8;
+  }
+
+  &__arrow {
+    flex: 0 0 auto;
+    width: brand.$minimum-touch-target;
+    height: brand.$minimum-touch-target;
+    border-radius: brand.$border-radius-full;
+    border: 1px solid brand.$border-color;
+    background: brand.$color-white;
+    color: brand.$text-color-light;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      background brand.$interaction-transition,
+      border-color brand.$interaction-transition,
+      color brand.$interaction-transition;
+
+    &:hover {
+      background: brand.$primary;
+      border-color: brand.$primary;
+      color: brand.$primary-contrast;
+    }
+
+    &:focus-visible {
+      outline: brand.$focus-ring-width solid brand.$focus-ring-color;
+      outline-offset: 2px;
+    }
+  }
+
+  &__viewport {
+    overflow: hidden;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__track {
+    display: flex;
+    align-items: center;
+    width: calc(100% * var(--pc-window) / var(--pc-per-view));
+    transition: transform var(--pc-duration) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__item {
+    flex: 0 0 calc(100% / var(--pc-window));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: brand.$spacing-3 brand.$spacing-6;
+    border: 1px solid transparent;
+    border-radius: brand.$border-radius-lg;
+    background: brand.$color-white;
+    overflow: hidden;
+    line-height: 0; // a plain logo tile, not a text link
+    transition: border-color brand.$interaction-transition;
+
+    &:hover {
+      border-color: brand.$color-bark;
+    }
+
+    &:focus-visible {
+      outline: brand.$focus-ring-width solid brand.$focus-ring-color;
+      outline-offset: -2px;
+      border-color: brand.$color-bark;
+    }
+  }
+
+  &__logo {
+    width: 100%;
+    height: 5rem;
+    object-fit: contain;
+    transition: transform 280ms cubic-bezier(0.34, 1.35, 0.64, 1);
+
+    .partner-carousel__item:hover &,
+    .partner-carousel__item:focus-visible & {
+      transform: scale(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .partner-carousel__track,
+    .partner-carousel__logo {
+      transition-duration: 0s;
+    }
+  }
+}
