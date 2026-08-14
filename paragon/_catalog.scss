@@ -13,6 +13,16 @@
   padding: brand.$spacing-12 0;
   background: brand.$body-bg;
 
+  &__title {
+    text-align: center;
+    font-size: brand.$font-size-label;
+    font-weight: brand.$font-weight-label;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: brand.$text-color-light;
+    margin-bottom: brand.$spacing-8;
+  }
+
   &__row {
     display: flex;
     align-items: center;
