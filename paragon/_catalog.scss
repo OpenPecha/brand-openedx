@@ -12,14 +12,19 @@
 .partner-carousel {
   padding: brand.$spacing-12 0;
   background: brand.$body-bg;
+  font-family: brand.$font-family-brand-ui;
 
+  // The section eyebrow, matching .course-categories__title. The font-family
+  // above is what puts it in the UI font: this is a <p>, so without it the
+  // title inherits the body stack, whose Latin fallback is a system face
+  // rather than the brand's.
   &__title {
     text-align: center;
-    font-size: brand.$font-size-label;
+    font-size: brand.$font-size-h4;
     font-weight: brand.$font-weight-label;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.19em;
     text-transform: uppercase;
-    color: brand.$text-color-light;
+    color: brand.$text-color-muted;
     margin-bottom: brand.$spacing-8;
   }
 
@@ -27,7 +32,7 @@
     display: flex;
     align-items: center;
     gap: brand.$spacing-3;
-    max-width: 75rem;
+    width: 85%;
     margin: 0 auto;
     padding: 0 brand.$spacing-8;
   }
@@ -100,7 +105,7 @@
 
   &__logo {
     width: 100%;
-    height: 5rem;
+    height: 6.5rem;
     object-fit: contain;
     transition: transform 280ms cubic-bezier(0.34, 1.35, 0.64, 1);
 
@@ -120,19 +125,26 @@
 
 // Course categories: tabbed course grid on the homepage.
 .course-categories {
-  max-width: 75rem;
+  width: 85%;
   margin: 0 auto;
   padding: brand.$spacing-12 brand.$spacing-8;
   font-family: brand.$font-family-brand-ui;
 
   &__title {
     text-align: center;
+    // This is an h2, and the brand points Paragon's
+    // --pgn-typography-headings-font-family at the display serif, which every
+    // h1–h6 picks up. That beats the UI font inherited from the section above,
+    // so it has to be restated here: the design sets this label in the UI
+    // font, not the display one. (The sibling .partner-carousel__title is a
+    // <p>, which is why it needs no such override.)
+    font-family: brand.$font-family-brand-ui;
     font-size: brand.$font-size-h4;
     font-weight: brand.$font-weight-label;
     letter-spacing: 0.19em;
     text-transform: uppercase;
-    color: brand.$color-deep-saffron;
-    margin-bottom: brand.$spacing-6;
+    color: brand.$text-color-muted;
+    margin-bottom: brand.$spacing-8;
   }
 
   &__tabs {
@@ -144,11 +156,12 @@
   }
 
   &__tab {
-    // The design's pill is shorter than the brand's minimum touch target, so
-    // pad it back up to a comfortable tap size without changing the type.
-    min-height: brand.$minimum-touch-target;
-    padding: brand.$spacing-2 brand.$spacing-4;
-    border: 1px solid brand.$border-color;
+    // Sized from the design rather than the spacing scale, which has nothing
+    // at 7px/18px. That lands the pill around 35px tall — comfortably over the
+    // 24px WCAG 2.5.8 minimum, but under the brand's 44px target, so the target
+    // is restored below for coarse pointers, where it actually bites.
+    padding: 7px 18px;
+    border: 1.5px solid brand.$border-color;
     border-radius: brand.$border-radius-full;
     background: transparent;
     color: brand.$text-color-primary;
@@ -178,6 +191,12 @@
         background: brand.$accent-hover;
         border-color: brand.$accent-hover;
       }
+    }
+
+    // Touch and stylus input, where a fingertip-sized target matters. Mouse
+    // and trackpad keep the design's pill.
+    @media (pointer: coarse) {
+      min-height: brand.$minimum-touch-target;
     }
   }
 
@@ -262,8 +281,23 @@
 
   // Paragon's own card CSS loads separately from this file, so these need the
   // extra class to win on specificity.
+  //
+  // Paragon caps the vertical wrapper at --pgn-size-card-image-vertical-max-height
+  // (140px), and the image below inherits that cap, so the image height only
+  // takes effect once the cap is lifted. Lifting it also lets the wrapper grow
+  // around the badge, which is what keeps the badge off the text beneath it.
+  // The badge is a child of this wrapper rather than of the card, so it is the
+  // wrapper — not the card's own `d-flex` — that has to stack image then badge
+  // in a column.
+  .pgn__card-wrapper-image-cap.vertical {
+    display: flex;
+    flex-direction: column;
+    max-height: none;
+  }
+
   .pgn__card-image-cap {
-    height: 9.25rem;
+    height: 10rem;
+    max-height: none;
     object-fit: cover;
     background: brand.$section-bg;
   }
@@ -283,15 +317,22 @@
     // onLoad fires and then switches it to block.
     position: relative;
     z-index: 1;
-    // The card is `display: flex` (see CourseCard's `d-flex` class), which
-    // makes this badge a flex item. Without pinning flex-grow/shrink to 0, a
-    // flex item's declared width is only a hint the flex algorithm can stretch
-    // past — flex: 0 0 auto and align-self: flex-start are what actually make
-    // the fixed width below stick, matching the reference design's .cc-logo.
+    // Nudged up as a relative offset rather than a bigger negative top margin,
+    // so the badge shifts on its own: a margin change would drag the provider
+    // name and title up with it.
+    top: -2px;
+    // The wrapper above is a flex column, which makes this badge a flex item.
+    // Without pinning flex-grow/shrink to 0, a flex item's declared size is
+    // only a hint the flex algorithm can stretch past — flex: 0 0 auto and
+    // align-self: flex-start are what actually make the fixed box below stick,
+    // matching the reference design's .cc-logo.
     flex: 0 0 auto;
     align-self: flex-start;
     box-sizing: border-box;
-    margin: -1.5rem 0 brand.$spacing-3 14px;
+    // The inline-start margin is the badge's only horizontal constraint (it is
+    // align-self: flex-start in a column), so shrinking it moves the badge left
+    // without touching anything else in the card.
+    margin: -1.5rem 0 brand.$spacing-3 -10px;
     width: 6rem;
     height: 3.25rem;
     padding: 7px 10px;
@@ -326,6 +367,17 @@
     line-height: 1.5;
     color: brand.$text-color-primary;
     text-wrap: pretty;
+    // Reserve space for 3 lines regardless of actual length, so card height
+    // is constant across categories instead of tracking the longest title in
+    // whichever tab is active. min-height (not height) lets a genuinely short
+    // title's box still shrink-wrap if line-height rounds it under 3 lines,
+    // while never growing past 3 — the clamp below cuts off anything longer.
+    min-height: calc(1.5em * 3);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
   }
 
   .pgn__card-footer {
