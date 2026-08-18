@@ -485,3 +485,344 @@
     transition-duration: 0s;
   }
 }
+
+// Home page hero (homepage banner slot).
+//
+// Two columns: the greeting and course search on one side, a pair of course
+// cards on the other. The cards are stacked rather than side by side, and trade
+// places on a timer driven by React — CSS owns the bob and the resting
+// positions, React only says which card is currently in front.
+.home-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 40px;
+  max-width: 1200px;
+  min-height: 480px;
+  margin: 0 auto;
+  padding: 60px 40px 40px;
+  background: brand.$body-bg;
+  font-family: brand.$font-family-brand-ui;
+  color: brand.$color-espresso;
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-size: brand.$font-size-label;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: brand.$color-deep-saffron;
+  }
+
+  &__eyebrow-rule {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 2px;
+    background: brand.$color-saffron;
+  }
+
+  &__title {
+    // The design sets 72px signed out and 66px signed in, then steps down at
+    // two breakpoints. One fluid clamp covers the whole range, so the heading
+    // never jumps between the two states or at a breakpoint edge.
+    font-family: brand.$font-family-brand-display;
+    font-size: clamp(42px, 5.2vw, brand.$font-size-display);
+    font-weight: brand.$font-weight-display;
+    line-height: 1.06;
+    margin-bottom: 14px;
+  }
+
+  &__title-accent {
+    font-style: italic;
+    font-weight: brand.$font-weight-display;
+    color: brand.$color-deep-saffron;
+  }
+
+  // Paragon's SearchField, restyled as the design's single pill. Its submit
+  // control is kept rather than replaced by the design's decorative icon: it is
+  // moved to the left of the input and stripped of its button chrome, so it
+  // looks like the mockup while still being operable without a keyboard.
+  &__search {
+    max-width: 420px;
+    margin: 28px 0 0;
+
+    .pgn__searchfield {
+      border: 2px solid brand.$color-deep-brown;
+      border-radius: brand.$border-radius-full;
+      background: brand.$color-white;
+      box-shadow: 0 4px 20px rgba(28, 10, 0, .07);
+      transition: border-color brand.$interaction-transition, box-shadow .2s ease;
+
+      &:hover {
+        border-color: brand.$color-espresso;
+      }
+
+      &:focus-within {
+        border-color: brand.$color-deep-saffron;
+        box-shadow: 0 0 0 3px rgba(107, 51, 0, .26), 0 6px 24px rgba(28, 10, 0, .09);
+      }
+
+      // On focus Paragon marks itself `.has-focus` and draws its focus ring as
+      // an absolutely-positioned ::after with a `double` border and no radius.
+      // Inside a pill that reads as a hard-edged box floating in the middle of
+      // the field, so it is switched off — the :focus-within ring above is this
+      // field's focus affordance, and it follows the rounded shape.
+      //
+      // The `:not()` is carried over from Paragon's own selector rather than
+      // dropped: without it this rule ties Paragon's on specificity and would
+      // win or lose on stylesheet order, and Paragon's core theme is a separate
+      // webpack entry whose order relative to this file is not guaranteed.
+      &.has-focus:not(.pgn__searchfield--external)::after {
+        content: none;
+      }
+
+      // Same story, for the square inner shadow Paragon adds on focus.
+      &.has-focus:not(.pgn__searchfield--external) .pgn__searchfield_wrapper {
+        box-shadow: none;
+      }
+    }
+
+    .pgn__searchfield-form {
+      border: 0;
+      border-radius: inherit;
+      background: transparent;
+    }
+
+    input {
+      font-family: brand.$font-family-brand-ui;
+      font-size: 16px;
+      color: brand.$color-espresso;
+      background: transparent;
+      border: 0;
+      // Paragon pins a fixed input height; the design's padding sets it here.
+      height: auto;
+      padding: brand.$spacing-4 20px;
+
+      &::placeholder {
+        color: brand.$color-clay;
+      }
+    }
+
+    .pgn__searchfield .pgn__searchfield__button,
+    .pgn__searchfield .pgn__searchfield__iconbutton-submit {
+      // Ahead of the input in the flex row, matching the design's leading icon.
+      order: -1;
+      color: brand.$color-clay;
+      background: transparent;
+      border: 0;
+
+      &:hover,
+      &:focus {
+        color: brand.$color-deep-saffron;
+        background: transparent;
+      }
+
+      // Paragon draws this button's focus ring as the same square double-border
+      // ::after. Swapped for a rounded outline so keyboard focus on the button
+      // stays visible without a hard-edged box inside the pill. The extra
+      // `.pgn__searchfield` above keeps this ahead of Paragon's `.btn` rule on
+      // specificity rather than on load order.
+      &:focus-visible {
+        outline: 2px solid brand.$color-deep-saffron;
+        outline-offset: 2px;
+        border-radius: brand.$border-radius-full;
+
+        &::after {
+          content: none;
+        }
+      }
+    }
+  }
+
+  &__visual {
+    position: relative;
+    height: 320px;
+  }
+
+  &__card {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 238px;
+    overflow: hidden;
+    background: brand.$color-white;
+    border: 1px solid brand.$color-dusk;
+    border-radius: 14px;
+    box-shadow: 0 14px 44px rgba(28, 10, 0, .16);
+    text-decoration: none;
+    color: inherit;
+    // Only the resting offsets and depth are transitioned. `transform` is left
+    // alone because the bob animation owns it, and transitioning it here would
+    // fight the keyframes every time the cards swap.
+    transition:
+      top .9s cubic-bezier(.4, 0, .2, 1),
+      left .9s cubic-bezier(.4, 0, .2, 1),
+      right .9s cubic-bezier(.4, 0, .2, 1),
+      opacity .5s,
+      border-color brand.$interaction-transition;
+
+    &:hover {
+      border-color: brand.$color-bark;
+    }
+
+    &:focus-visible {
+      outline: brand.$focus-ring-width solid brand.$color-espresso;
+      outline-offset: 2px;
+    }
+
+    // Each position carries its own keyframes because the rotation lives in the
+    // same `transform` the bob animates, so tilt and bob cannot be split.
+    &--front {
+      top: 60px;
+      left: 0;
+      right: auto;
+      z-index: 2;
+      animation: home-hero-float-front 6s ease-in-out infinite;
+    }
+
+    &--back {
+      top: 20px;
+      left: auto;
+      right: 10px;
+      z-index: 1;
+      opacity: .85;
+      animation: home-hero-float-back 5s ease-in-out infinite;
+    }
+  }
+
+  &__card-image {
+    display: block;
+    width: 100%;
+    height: 136px;
+    background: brand.$color-sand;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__card-badge {
+    align-self: flex-start;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // Pulled up so the badge straddles the bottom edge of the image.
+    margin: -24px 0 brand.$spacing-3 14px;
+    width: 96px;
+    height: 52px;
+    padding: 7px 10px;
+    background: brand.$color-white;
+    border: 1px solid brand.$color-dusk;
+    border-radius: brand.$border-radius-lg;
+    box-shadow: 0 2px 10px rgba(28, 10, 0, .1);
+    // The initials fallback shown when a provider has no logo on file.
+    font-family: brand.$font-family-brand-display;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: brand.$color-deep-saffron;
+
+    img {
+      max-width: 100%;
+      max-height: 36px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+  }
+
+  &__card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 14px brand.$spacing-4;
+  }
+
+  &__card-provider {
+    font-size: brand.$font-size-caption;
+    font-weight: 700;
+    line-height: 1.35;
+    color: brand.$color-espresso;
+  }
+
+  &__card-title {
+    // Course titles are the author's own words and are frequently Tibetan, so
+    // they take Jomolhari per the site's font policy. Jomolhari is declared
+    // with a Tibetan-only unicode-range, so Latin characters in a title fall
+    // through to the UI face rather than rendering in Jomolhari's Latin.
+    font-family: brand.$font-family-jomolhari, brand.$font-family-brand-ui;
+    font-size: brand.$font-size-caption;
+    font-weight: 500;
+    line-height: 1.5;
+    color: brand.$color-deep-brown;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 28px;
+    padding: 44px brand.$spacing-6 brand.$spacing-8;
+
+    &__visual {
+      height: 364px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    // Stacking two absolutely-positioned cards has no room to read on a narrow
+    // screen, so the back card steps aside and the front one goes full width.
+    &__visual {
+      height: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    &__card {
+      position: static;
+      width: 100%;
+      max-width: 300px;
+      opacity: 1;
+      animation: none;
+      transition: none;
+      box-shadow: 0 8px 26px rgba(28, 10, 0, .12);
+    }
+
+    &__card--back {
+      display: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    padding: 36px 20px 28px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &__card {
+      animation: none;
+      transition-duration: 0s;
+    }
+  }
+}
+
+@keyframes home-hero-float-front {
+  0%,
+  100% { transform: translateY(0) rotate(5deg); }
+  50% { transform: translateY(-6px) rotate(5deg); }
+}
+
+@keyframes home-hero-float-back {
+  0%,
+  100% { transform: translateY(0) rotate(-4deg); }
+  50% { transform: translateY(-8px) rotate(-4deg); }
+}
