@@ -6,13 +6,29 @@
 //
 // Layout note: the track is deliberately wider than its viewport — it holds
 // --pc-window logos while only --pc-per-view of them fit, leaving one
-// off-screen either side to slide in from. Those two counts and the slide
-// duration are set as inline custom properties by the React component, so
-// nothing here needs measuring in JS and it stays correct on resize.
+// off-screen either side to slide in from. --pc-window and the slide
+// duration are set as inline custom properties by the React component, since
+// they don't need to vary; --pc-per-view is set here instead (base value plus
+// the breakpoints below, matching the reference design's .sp-track exactly),
+// because it must respond to viewport width and an inline style set once by
+// React would always beat a media-query override regardless of specificity.
 .partner-carousel {
   padding: brand.$spacing-12 0;
   background: brand.$body-bg;
   font-family: brand.$font-family-brand-ui;
+  --pc-per-view: 4;
+
+  @media (max-width: 960px) {
+    --pc-per-view: 3;
+  }
+
+  @media (max-width: 760px) {
+    --pc-per-view: 2;
+  }
+
+  @media (max-width: 460px) {
+    --pc-per-view: 1;
+  }
 
   // The section eyebrow, matching .course-categories__title. The font-family
   // above is what puts it in the UI font: this is a <p>, so without it the
@@ -28,13 +44,38 @@
     margin-bottom: brand.$spacing-8;
   }
 
+  // max-width rather than a percentage width: a percentage leaves dead space
+  // on narrow screens (where it is needed least) on top of the padding below,
+  // and never stops growing on very wide ones. This caps the line length and
+  // lets the gutter shrink with the viewport instead.
   &__row {
     display: flex;
     align-items: center;
     gap: brand.$spacing-3;
-    width: 85%;
+    max-width: 75rem;
     margin: 0 auto;
     padding: 0 brand.$spacing-8;
+
+    @media (max-width: 900px) {
+      padding: 0 brand.$spacing-6;
+    }
+
+    @media (max-width: 600px) {
+      gap: brand.$spacing-2;
+      padding: 0 brand.$spacing-4;
+    }
+
+    // Ultra-wide: the shell scales up rather than stranding the content in a
+    // narrow column. These run wider than .course-categories by the width of
+    // the two arrows and their gaps, which sit outside the logo track, so the
+    // logos themselves still line up with the course grid below.
+    @media (min-width: 1600px) {
+      max-width: 97rem;
+    }
+
+    @media (min-width: 2000px) {
+      max-width: 104.5rem;
+    }
   }
 
   &__arrow {
@@ -121,10 +162,31 @@
 
 // Course categories: tabbed course grid on the homepage.
 .course-categories {
-  width: 85%;
+  // See the note on .partner-carousel__row: capped width plus a gutter that
+  // shrinks with the viewport, rather than a fixed percentage that wastes
+  // space on small screens and never stops growing on large ones.
+  max-width: 75rem;
   margin: 0 auto;
   padding: brand.$spacing-12 brand.$spacing-8;
   font-family: brand.$font-family-brand-ui;
+
+  @media (max-width: 900px) {
+    padding: brand.$spacing-12 brand.$spacing-6;
+  }
+
+  @media (max-width: 600px) {
+    padding: brand.$spacing-8 brand.$spacing-4;
+  }
+
+  // Ultra-wide: scale the shell up so very large monitors aren't left with a
+  // narrow column of content stranded between wide empty margins.
+  @media (min-width: 1600px) {
+    max-width: 90rem;
+  }
+
+  @media (min-width: 2000px) {
+    max-width: 97.5rem;
+  }
 
   &__title {
     text-align: center;
@@ -361,8 +423,10 @@
     box-sizing: border-box;
     // The inline-start margin is the badge's only horizontal constraint (it is
     // align-self: flex-start in a column), so shrinking it moves the badge left
-    // without touching anything else in the card.
-    margin: -1.5rem 0 brand.$spacing-3 -10px;
+    // without touching anything else in the card. The bottom margin matches
+    // .course-card__meta's gap below, so badge-to-provider and
+    // provider-to-title read as the same rhythm instead of two different ones.
+    margin: -1.5rem 0 brand.$spacing-2 -10px;
     width: 6rem;
     height: 3.25rem;
     padding: 7px 10px;
@@ -378,8 +442,10 @@
   .course-card__meta {
     display: flex;
     flex-direction: column;
-    gap: brand.$spacing-1;
-    padding: 0 brand.$spacing-3 brand.$spacing-4;
+    gap: brand.$spacing-2;
+    // Left padding bumped a step up the spacing scale (12px -> 16px) so the
+    // provider name and title sit further in, closer to the image's edge.
+    padding: 0 brand.$spacing-3 brand.$spacing-4 brand.$spacing-4;
   }
 
   .course-card__provider {
