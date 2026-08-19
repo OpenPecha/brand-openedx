@@ -505,6 +505,13 @@
   font-family: brand.$font-family-brand-ui;
   color: brand.$color-espresso;
 
+  // The floating pair's geometry lives here because three separate rules
+  // depend on it — the card's own width, how far the front card sits from the
+  // back one, and the floor that stops the pair spilling out of its column.
+  // Driving them from one value keeps the overlap fixed when the size changes.
+  --hero-card-width: 280px;
+  --hero-card-gap: 11px;
+
   &__eyebrow {
     display: flex;
     align-items: center;
@@ -550,6 +557,13 @@
     margin: 28px 0 0;
 
     .pgn__searchfield {
+      // Paragon nests several nodes inside this pill — a form, an internal
+      // decorator wrapper, icon buttons — none of which are given this pill's
+      // border-radius, so a squared corner can show through past the curve
+      // wherever the outer border isn't the only thing drawing an edge.
+      // Clipping here is the one fix that holds regardless of which nested
+      // node is responsible, rather than chasing each one individually.
+      overflow: hidden;
       border: 2px solid brand.$color-deep-brown;
       border-radius: brand.$border-radius-full;
       background: brand.$color-white;
@@ -585,19 +599,33 @@
       }
     }
 
-    .pgn__searchfield-form {
+    .pgn__searchfield-form,
+    // Only rendered when submitButtonLocation is "external", which this field
+    // doesn't use — kept here in case that ever changes, since it carries the
+    // same stray border as the form.
+    .pgn__searchfield_wrapper {
+      // A small inset so the leading icon (reordered below) and any focus
+      // outline stay clear of the pill's rounded corners now that overflow is
+      // clipped above — flush against a curve, either would be cut off.
+      padding: 0 4px;
       border: 0;
       border-radius: inherit;
       background: transparent;
     }
 
-    input {
+    // Paragon fixes the input's height via `.pgn__searchfield .form-control`
+    // (two classes), which measures out to ~39px — well under this design's
+    // ~52px pill. A bare `input` selector here loses to it on specificity (one
+    // class beats one class plus a tag), so the height override was silently
+    // never applying and the field rendered smaller than intended. Repeating
+    // Paragon's own two-class path, plus the `.home-hero__search` scope, wins
+    // outright rather than relying on which stylesheet happens to load last.
+    .pgn__searchfield .form-control {
       font-family: brand.$font-family-brand-ui;
       font-size: 16px;
       color: brand.$color-espresso;
       background: transparent;
       border: 0;
-      // Paragon pins a fixed input height; the design's padding sets it here.
       height: auto;
       padding: brand.$spacing-4 20px;
 
@@ -639,14 +667,26 @@
 
   &__visual {
     position: relative;
-    height: 320px;
+    height: 360px;
+    // No max-width: the cards below set their own spacing from this box's
+    // right edge, so this is left to fill the grid column. Capping it instead
+    // left-aligned the pair inside the column and stranded the leftover width
+    // as dead space on the page's right, which read as the whole hero being
+    // nudged left. Filling the column keeps the cards' right edge flush with
+    // the hero's content edge, mirroring the text's left edge.
+    //
+    // The floor is the pair's own width — one card, plus the front card's
+    // offset from it — so on mid-size screens the front card can't spill left
+    // out of the column and into the text. Lifted again below once the cards
+    // stop being stacked.
+    min-width: calc(var(--hero-card-width) * 2 + var(--hero-card-gap));
   }
 
   &__card {
     position: absolute;
     display: flex;
     flex-direction: column;
-    width: 238px;
+    width: var(--hero-card-width);
     overflow: hidden;
     background: brand.$color-white;
     border: 1px solid brand.$color-dusk;
@@ -675,10 +715,17 @@
 
     // Each position carries its own keyframes because the rotation lives in the
     // same `transform` the bob animates, so tilt and bob cannot be split.
+    // Both cards are anchored to the container's right edge, one behind the
+    // other, rather than to opposite edges. Anchoring to opposite edges made
+    // the spacing between them a function of the container's width, so the
+    // pair drifted apart as the hero grew and bunched up as it shrank. Offset
+    // from a shared edge, the gap between them is fixed: the front card sits
+    // one card-width plus a hair clear of the back one, which the rotation
+    // then closes into the small overlap the design shows.
     &--front {
       top: 60px;
-      left: 0;
-      right: auto;
+      left: auto;
+      right: calc(var(--hero-card-width) + var(--hero-card-gap));
       z-index: 2;
       animation: home-hero-float-front 6s ease-in-out infinite;
     }
@@ -686,7 +733,7 @@
     &--back {
       top: 20px;
       left: auto;
-      right: 10px;
+      right: 0;
       z-index: 1;
       opacity: .85;
       animation: home-hero-float-back 5s ease-in-out infinite;
@@ -696,7 +743,9 @@
   &__card-image {
     display: block;
     width: 100%;
-    height: 136px;
+    // Tied to the card's width rather than fixed, so the banner keeps the
+    // design's 1.75:1 proportion whenever the card is resized.
+    height: calc(var(--hero-card-width) / 1.75);
     background: brand.$color-sand;
 
     img {
@@ -716,24 +765,24 @@
     align-items: center;
     justify-content: center;
     // Pulled up so the badge straddles the bottom edge of the image.
-    margin: -24px 0 brand.$spacing-3 14px;
-    width: 96px;
-    height: 52px;
-    padding: 7px 10px;
+    margin: -28px 0 14px 16px;
+    width: 112px;
+    height: 60px;
+    padding: 8px 12px;
     background: brand.$color-white;
     border: 1px solid brand.$color-dusk;
     border-radius: brand.$border-radius-lg;
     box-shadow: 0 2px 10px rgba(28, 10, 0, .1);
     // The initials fallback shown when a provider has no logo on file.
     font-family: brand.$font-family-brand-display;
-    font-size: 19px;
+    font-size: 22px;
     font-weight: 600;
     letter-spacing: 1.5px;
     color: brand.$color-deep-saffron;
 
     img {
       max-width: 100%;
-      max-height: 36px;
+      max-height: 42px;
       width: auto;
       height: auto;
       object-fit: contain;
@@ -744,8 +793,8 @@
   &__card-text {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    padding: 0 14px brand.$spacing-4;
+    gap: 6px;
+    padding: 0 16px 18px;
   }
 
   &__card-provider {
@@ -768,6 +817,18 @@
     text-wrap: pretty;
   }
 
+  // Below the hero's full width the grid columns shrink with the viewport, and
+  // the enlarged pair's floor would eat into the text column until the heading
+  // had nowhere to go. The cards drop back to their original size here, where
+  // there is no spare width to spend on them.
+  @media (max-width: 1200px) {
+    --hero-card-width: 238px;
+
+    &__visual {
+      height: 320px;
+    }
+  }
+
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
     min-height: 0;
@@ -786,6 +847,10 @@
       height: auto;
       display: flex;
       justify-content: center;
+      // The pair-width floor only guards the stacked layout above; kept here
+      // it would be wider than a phone screen and force the page to scroll
+      // sideways.
+      min-width: 0;
     }
 
     &__card {
@@ -805,6 +870,19 @@
 
   @media (max-width: 600px) {
     padding: 36px 20px 28px;
+  }
+
+  // Ultra-wide: the sections below already scale their shell up rather than
+  // sitting stranded in a 1200px column with wide empty margins on either
+  // side — .course-categories at 90rem/97.5rem, .partner-carousel__row a
+  // little more to clear its arrows. The hero has no side controls of its
+  // own, so it matches .course-categories exactly rather than the carousel.
+  @media (min-width: 1600px) {
+    max-width: 1440px;
+  }
+
+  @media (min-width: 2000px) {
+    max-width: 1560px;
   }
 
   @media (prefers-reduced-motion: reduce) {
