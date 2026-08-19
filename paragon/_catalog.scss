@@ -692,7 +692,11 @@
     display: flex;
     flex-direction: column;
     width: var(--hero-card-width);
-    overflow: hidden;
+    // Deliberately not `overflow: hidden`, which is how a rounded card would
+    // normally keep its banner inside the corners: the "new course" ribbon has
+    // to hang a little past the top-left corner for its folded tails to show,
+    // and clipping here would shave them off. The banner clips itself instead,
+    // on `&__card-image` below.
     background: brand.$color-white;
     border: 1px solid brand.$color-dusk;
     border-radius: 14px;
@@ -772,11 +776,11 @@
   }
 
   &__card-image {
-    // Anchors the flag below, and it has to be this box rather than the card:
-    // at the narrow breakpoint the card drops to `position: static`, so a flag
-    // anchored to it would resolve against `&__visual` instead and land outside
-    // the card entirely. This box is never repositioned at any breakpoint.
-    position: relative;
+    // Rounds its own top corners and clips to them, the job the card's
+    // `overflow: hidden` did before the ribbon needed to escape it. 13px, not
+    // 14px: the card's radius measured inside its 1px border.
+    border-radius: 13px 13px 0 0;
+    overflow: hidden;
     display: block;
     width: 100%;
     // Tied to the card's width rather than fixed, so the banner keeps the
@@ -791,7 +795,7 @@
     }
   }
 
-  // The "new course" ribbon wrapping the banner's top-left corner. Named `flag`
+  // The "new course" ribbon wrapping the banner's top-right corner. Named `flag`
   // rather than `badge` because `&__card-badge` below is already the provider's
   // logo chip.
   //
@@ -800,38 +804,86 @@
   // espresso text — rather than the solid accent fill a badge might reach for.
   // That keeps it a matched set with the provider chip below and reads at
   // 15.3:1, well clear of AA even through the back card's .85 opacity.
-  &__card-flag {
+  // The "new course" corner ribbon, wrapping the card's top-right.
+  //
+  // The outer span is a square window with `overflow: hidden`; the inner span is
+  // the band, wider than that window's diagonal and rotated across it, so the
+  // window trims the band's ends to the corner. The window is nudged outside the
+  // card so the two ::before/::after tails behind it read as the ribbon folding
+  // back around the edge.
+  //
+  // Proportioned for a card a fraction the size of the usual full-width panel
+  // this pattern is written for: every length is the reference at 0.6, which
+  // keeps the band spanning the window's diagonal.
+  &__card-ribbon {
     position: absolute;
-    // Deliberately negative on the left: the band has to overhang both the top
-    // and left edges for its ends to disappear, and the card's existing
-    // `overflow: hidden` is what trims them to the rounded corner. Width is
-    // generous so the diagonal fully crosses the corner.
-    top: 20px;
-    left: -35px;
-    width: 150px;
-    transform: rotate(-45deg);
-    // Long edges only. The short ends are clipped away by the card, so bordering
-    // them would just add two hairlines that never appear.
-    border-top: 1px solid brand.$color-dusk;
-    border-bottom: 1px solid brand.$color-dusk;
-    padding: 5px 0;
-    background: brand.$color-sand;
-    text-align: center;
-    // No uppercase and no letter-spacing, unlike the initials on
-    // `&__card-badge`: those are Latin-only and hidden from screen readers,
-    // while this string is translated. Neither does anything in Tibetan or
-    // Devanagari, and letter-spacing visibly breaks Tibetan stacks. Weight
-    // carries the emphasis, at the 12px/600 the kit uses for its smaller chips.
-    font-family: brand.$font-family-brand-ui;
-    font-size: brand.$font-size-label;
-    font-weight: 600;
-    line-height: 1.35;
-    color: brand.$color-espresso;
-    // A ribbon cannot grow with its text the way a pill can, so a translation
-    // longer than the band is trimmed rather than allowed to break the diagonal.
-    white-space: nowrap;
+    top: -6px;
+    right: -6px;
+    width: 90px;
+    height: 90px;
     overflow: hidden;
-    text-overflow: ellipsis;
+    // Above the banner, which clips itself and would otherwise paint over
+    // anything sharing its corner.
+    z-index: 2;
+
+    // The folded tails, tucked behind the band.
+    &::before,
+    &::after {
+      position: absolute;
+      z-index: -1;
+      content: "";
+      display: block;
+      // Deep saffron reads as the band's own colour in shadow, which is what
+      // sells the fold.
+      border: 3px solid brand.$color-deep-saffron;
+      border-top-color: transparent;
+      border-right-color: transparent;
+    }
+
+    &::before {
+      top: 0;
+      left: 0;
+    }
+
+    &::after {
+      bottom: 0;
+      right: 0;
+    }
+
+    span {
+      position: absolute;
+      display: block;
+      width: 135px;
+      left: -15px;
+      top: 18px;
+      transform: rotate(45deg);
+      // 9px, not a smaller value: the reference this pattern is built on
+      // scales every length by 0.6 (window 150→90, border 5→3, span
+      // width 225→135, offsets -25→-15 and 30→18); padding follows the same
+      // 0.6× factor (15px→9px). Shorting it left the band too thin for its
+      // corner tails to align with, opening a gap that read as a stray sliver
+      // of whatever sat behind the ribbon.
+      padding: 9px 0;
+      background: brand.$color-saffron;
+      box-shadow: 0 3px 6px rgba(28, 10, 0, .1);
+      text-align: center;
+      text-transform: uppercase;
+      // The brand UI face, not the reference's webfont. No letter-spacing
+      // either: this string is translated, and spacing visibly breaks Tibetan
+      // stacks. Uppercase is a harmless no-op in Tibetan and Devanagari.
+      font-family: brand.$font-family-brand-ui;
+      // 11px sits just under the type scale's smallest step, which stops at
+      // 12px — the band is short enough that a longer translation needs the
+      // room more than the label needs the extra pixel.
+      font: {
+        size: 11px;
+        weight: 700;
+      }
+      line-height: 1;
+      // Espresso, not white: white on saffron measures 2.6:1 and misses AA,
+      // while espresso clears AAA at 7.3:1.
+      color: brand.$color-espresso;
+    }
   }
 
   &__card-badge {
@@ -933,7 +985,10 @@
     }
 
     &__card {
-      position: static;
+      // `relative` rather than `static`: the card stops being positioned for
+      // layout here, but it still has to anchor the corner ribbon, which would
+      // otherwise resolve against `&__visual` and drift off the card.
+      position: relative;
       width: 100%;
       max-width: 300px;
       opacity: 1;
