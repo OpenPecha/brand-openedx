@@ -543,6 +543,11 @@
   }
 
   &__title-accent {
+    // Drops the name onto its own line under the greeting, as the design has
+    // it. Done here rather than with a <br> inside the translated string: the
+    // break is presentation, and baking one into the message would fix the word
+    // order for every language that needs to arrange the greeting differently.
+    display: block;
     font-style: italic;
     font-weight: brand.$font-weight-display;
     color: brand.$color-deep-saffron;
@@ -767,6 +772,11 @@
   }
 
   &__card-image {
+    // Anchors the flag below, and it has to be this box rather than the card:
+    // at the narrow breakpoint the card drops to `position: static`, so a flag
+    // anchored to it would resolve against `&__visual` instead and land outside
+    // the card entirely. This box is never repositioned at any breakpoint.
+    position: relative;
     display: block;
     width: 100%;
     // Tied to the card's width rather than fixed, so the banner keeps the
@@ -779,6 +789,49 @@
       height: 100%;
       object-fit: cover;
     }
+  }
+
+  // The "new course" ribbon wrapping the banner's top-left corner. Named `flag`
+  // rather than `badge` because `&__card-badge` below is already the provider's
+  // logo chip.
+  //
+  // Colours follow the design kit's chip language — `.dn-chip` on the Discover
+  // New and Explore Courses boards is a sand fill with a 1px dusk border and
+  // espresso text — rather than the solid accent fill a badge might reach for.
+  // That keeps it a matched set with the provider chip below and reads at
+  // 15.3:1, well clear of AA even through the back card's .85 opacity.
+  &__card-flag {
+    position: absolute;
+    // Deliberately negative on the left: the band has to overhang both the top
+    // and left edges for its ends to disappear, and the card's existing
+    // `overflow: hidden` is what trims them to the rounded corner. Width is
+    // generous so the diagonal fully crosses the corner.
+    top: 20px;
+    left: -35px;
+    width: 150px;
+    transform: rotate(-45deg);
+    // Long edges only. The short ends are clipped away by the card, so bordering
+    // them would just add two hairlines that never appear.
+    border-top: 1px solid brand.$color-dusk;
+    border-bottom: 1px solid brand.$color-dusk;
+    padding: 5px 0;
+    background: brand.$color-sand;
+    text-align: center;
+    // No uppercase and no letter-spacing, unlike the initials on
+    // `&__card-badge`: those are Latin-only and hidden from screen readers,
+    // while this string is translated. Neither does anything in Tibetan or
+    // Devanagari, and letter-spacing visibly breaks Tibetan stacks. Weight
+    // carries the emphasis, at the 12px/600 the kit uses for its smaller chips.
+    font-family: brand.$font-family-brand-ui;
+    font-size: brand.$font-size-label;
+    font-weight: 600;
+    line-height: 1.35;
+    color: brand.$color-espresso;
+    // A ribbon cannot grow with its text the way a pill can, so a translation
+    // longer than the band is trimmed rather than allowed to break the diagonal.
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__card-badge {
