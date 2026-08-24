@@ -458,6 +458,13 @@
 
   .course-card__title {
     margin: 0;
+    // Course titles are the author's own words, so they take Jomolhari per the
+    // site's font policy — the same rule the hero cards follow. Left unset,
+    // this inherits the base stack, which puts Noto Serif Tibetan first: the
+    // face reserved for the platform's own static UI text, not authored
+    // content. Jomolhari's unicode-range is Tibetan-only, so Latin characters
+    // in a title still fall through to the UI face unaffected.
+    font-family: brand.$font-family-jomolhari, brand.$font-family-brand-ui;
     font-size: brand.$font-size-caption;
     font-weight: 500;
     line-height: 1.5;
