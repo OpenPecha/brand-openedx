@@ -1118,16 +1118,28 @@
     white-space: nowrap;
   }
 
+  // Paragon's own FormControlSet wrapper (one per filter group, holding all
+  // its checkbox rows) is a column flex with align-items: flex-start, which
+  // sizes each row to its own content instead of the group's full width —
+  // pinned to 100% here so a row can't be narrower than the panel itself.
+  .pgn__form-control-set {
+    width: 100%;
+  }
+
   // Paragon sets this class to inline-flex (shrink to content); flex + width
   // make the row span the full panel, so the badge's margin-left: auto below
   // can actually reach the right edge. min-width: 0 throughout stops a long
   // label from forcing the row (and the fixed-width sidebar) wider.
   .pgn__form-checkbox {
-    display: flex;
-    width: 100%;
+    display: flex !important;
+    width: 100% !important;
     align-items: center;
     gap: 10px;
-    padding: 6px 8px;
+    // Right padding dropped (kept on the left) — the negative margin below
+    // only widens the hover highlight, it doesn't pull the badge back in, so
+    // 8px of right padding was the actual reason the badge sat left of the
+    // group's chevron above it.
+    padding: 6px 0 6px 8px;
     margin: 0 -8px;
     border-radius: 8px;
     min-width: 0;
