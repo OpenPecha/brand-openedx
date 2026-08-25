@@ -1027,7 +1027,12 @@
   min-width: 0 !important;
 }
 
+// position: relative so it (not the sidebar's own position: sticky, which
+// wasn't a reliable anchor for this) is the containing block for the
+// absolutely-positioned "Clear all" button below.
 .pgn__data-table-side-filters {
+  position: relative;
+
   hr {
     display: none;
   }
@@ -1038,6 +1043,7 @@
   font-size: 21px;
   font-weight: 500;
   color: brand.$color-espresso;
+  margin-top: 12px;
   padding-bottom: 12px;
 }
 
@@ -1045,17 +1051,60 @@
   border-top: 1px solid brand.$color-sand;
 }
 
+// Paragon renders this after every filter group, not next to the "Filters"
+// title — pulled out of flow and placed top-right against .pgn__data-table-
+// side-filters (see its position: relative above) to match the design.
 .pgn__data-table-side-filters-status {
-  padding: 6px 0 12px;
+  position: absolute;
+  top: 3px;
+  right: 0;
+  margin: 0;
 
+  // Swaps the label to "Clear all" — SidebarFilters renders this button
+  // internally with no prop to override its text. font-size: 0 on the real
+  // text caused some browsers to still reserve space for it, overlapping
+  // with the replacement text — so instead the real text stays its natural
+  // size (just transparent, keeping the button's layout/hit area intact)
+  // and the replacement is layered on top via ::after.
   .pgn__smart-status-button {
-    min-height: brand.$minimum-touch-target;
+    position: relative;
+    min-height: auto;
     padding: 0;
     font-size: brand.$font-size-caption;
     font-weight: 600;
-    color: brand.$color-deep-saffron;
 
-    &:hover {
+    // !important: Paragon's own .btn:hover/:focus/:active rules set their
+    // own color (and, since this is a tertiary-variant Button, a gray
+    // background fill) at higher specificity than a plain class selector.
+    // The color override stops the real "Clear filters" text from
+    // reappearing behind the "Clear all" overlay below; background is
+    // cleared since this reads as a plain text link, not a filled button.
+    &,
+    &:hover,
+    &:focus,
+    &:focus-visible,
+    &:active {
+      color: transparent !important;
+      background: transparent !important;
+    }
+
+    // Paragon's own Button draws a focus box as a `::before` overlay on
+    // plain :focus (fires on every click, not just keyboard use) — same
+    // issue as the sidebar checkboxes and pagination, cleared here too.
+    &:focus::before {
+      content: none;
+    }
+
+    &::after {
+      content: "Clear all";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      color: brand.$color-deep-saffron;
+    }
+
+    &:hover::after {
       color: brand.$primary-hover;
       text-decoration: underline;
     }
