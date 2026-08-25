@@ -413,9 +413,17 @@
     overflow: hidden;
   }
 
+  // Matches the design's .cc-date spec (compact padding, muted clay text).
   .pgn__card-footer {
-    font-size: brand.$font-size-caption;
-    color: brand.$color-deep-saffron;
+    padding: 2px 14px 14px;
+
+    // The "Starts: …" text is this nested div, not .pgn__card-footer itself
+    // — it carries its own explicit color/font-size, so styling the outer
+    // element alone has no effect.
+    .pgn__card-footer-text {
+      font-size: brand.$font-size-caption;
+      color: brand.$color-clay;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -860,6 +868,493 @@
     &__card {
       animation: none;
       transition-duration: 0s;
+    }
+  }
+}
+
+// Catalog listing page ("Discover new"). Restyles the existing CatalogPage —
+// only visual, no data-flow changes.
+//
+// Matches the home page's max-width/padding scheme instead of Paragon's
+// Container default, so the side whitespace reads the same on both pages.
+.catalog-page {
+  max-width: 75rem !important;
+  padding-left: brand.$spacing-8 !important;
+  padding-right: brand.$spacing-8 !important;
+
+  @media (max-width: 900px) {
+    padding-left: brand.$spacing-6 !important;
+    padding-right: brand.$spacing-6 !important;
+  }
+
+  @media (max-width: 600px) {
+    padding-left: brand.$spacing-4 !important;
+    padding-right: brand.$spacing-4 !important;
+  }
+
+  // Matches .home-hero / .course-categories' ultra-wide scale-up.
+  @media (min-width: 1600px) {
+    max-width: 90rem !important;
+  }
+
+  @media (min-width: 2000px) {
+    max-width: 97.5rem !important;
+  }
+}
+
+.catalog-page-head {
+  font-family: brand.$font-family-brand-ui;
+  color: brand.$color-espresso;
+
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: brand.$font-size-label;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: brand.$color-deep-saffron;
+  }
+
+  &__eyebrow-rule {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 2px;
+    background: brand.$color-saffron;
+  }
+
+  &__title {
+    font-family: brand.$font-family-brand-display;
+    font-size: clamp(34px, 4.2vw, 56px);
+    font-weight: brand.$font-weight-display;
+    line-height: 1.05;
+    margin-bottom: 22px;
+  }
+
+  &__title-accent {
+    font-style: italic;
+    font-weight: brand.$font-weight-display;
+    color: brand.$color-deep-saffron;
+  }
+
+  // Same pill treatment as .home-hero__search, scoped to this page.
+  &__search {
+    max-width: 480px;
+
+    .pgn__searchfield {
+      overflow: hidden;
+      border: 2px solid brand.$color-deep-brown;
+      border-radius: brand.$border-radius-full;
+      background: brand.$color-white;
+      box-shadow: 0 4px 20px rgba(28, 10, 0, .07);
+      transition: border-color brand.$interaction-transition, box-shadow .2s ease;
+
+      &:hover {
+        border-color: brand.$color-espresso;
+      }
+
+      &:focus-within {
+        border-color: brand.$color-deep-saffron;
+        box-shadow: 0 0 0 3px rgba(107, 51, 0, .26), 0 6px 24px rgba(28, 10, 0, .09);
+      }
+
+      // Drops Paragon's square focus ring in favor of the rounded one above.
+      &.has-focus:not(.pgn__searchfield--external)::after {
+        content: none;
+      }
+    }
+
+    .pgn__searchfield-form {
+      padding: 0 4px;
+      border: 0;
+      border-radius: inherit;
+      background: transparent;
+    }
+
+    .pgn__searchfield .form-control {
+      font-family: brand.$font-family-brand-ui;
+      font-size: 16px;
+      color: brand.$color-espresso;
+      background: transparent;
+      border: 0;
+      height: auto;
+      padding: brand.$spacing-4 20px;
+
+      &::placeholder {
+        color: brand.$color-clay;
+      }
+    }
+
+    // Ordered ahead of the input to match the design's leading search icon.
+    .pgn__searchfield .pgn__searchfield__iconbutton-submit {
+      order: -1;
+      color: brand.$color-clay;
+      background: transparent;
+      border: 0;
+
+      &:hover,
+      &:focus {
+        color: brand.$color-deep-saffron;
+        background: transparent;
+      }
+
+      &:focus-visible {
+        outline: 2px solid brand.$color-deep-saffron;
+        outline-offset: 2px;
+        border-radius: brand.$border-radius-full;
+      }
+    }
+  }
+}
+
+// Filter sidebar panel. The collapsible groups are a custom component
+// (CollapsibleFilterGroup) — Paragon only renders a flat, non-collapsing list.
+.pgn__data-table-layout-sidebar {
+  position: sticky;
+  top: 88px;
+  background: brand.$color-white !important;
+  border: 1px solid brand.$border-color;
+  border-radius: brand.$border-radius-lg !important;
+  box-shadow: none !important;
+  padding: 16px 16px 6px !important;
+  // Fixed width, wider than the mockup's 248px (real org/language lists run
+  // longer). !important: Paragon has a higher-specificity rule that would
+  // otherwise revert this to its own default 12rem.
+  width: 280px !important;
+  flex: 0 0 280px !important;
+  min-width: 0 !important;
+}
+
+.pgn__data-table-side-filters {
+  hr {
+    display: none;
+  }
+}
+
+.pgn__data-table-side-filters-title {
+  font-family: brand.$font-family-brand-display;
+  font-size: 21px;
+  font-weight: 500;
+  color: brand.$color-espresso;
+  padding-bottom: 12px;
+}
+
+.pgn__data-table-side-filters-item {
+  border-top: 1px solid brand.$color-sand;
+}
+
+.pgn__data-table-side-filters-status {
+  padding: 6px 0 12px;
+
+  .pgn__smart-status-button {
+    min-height: brand.$minimum-touch-target;
+    padding: 0;
+    font-size: brand.$font-size-caption;
+    font-weight: 600;
+    color: brand.$color-deep-saffron;
+
+    &:hover {
+      color: brand.$primary-hover;
+      text-decoration: underline;
+    }
+  }
+}
+
+.catalog-filter-group {
+  &__toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 13px 0 11px;
+    font-family: brand.$font-family-brand-ui;
+    font-size: brand.$font-size-label;
+    letter-spacing: 1.6px;
+    font-weight: 700;
+    color: brand.$color-clay;
+    text-transform: uppercase;
+
+    &:hover {
+      color: brand.$color-espresso;
+    }
+
+    &:focus-visible {
+      outline: brand.$focus-ring-width solid brand.$focus-ring-color;
+      outline-offset: 2px;
+      border-radius: brand.$border-radius-sm;
+    }
+  }
+
+  &__caret {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    transition: transform 150ms ease;
+  }
+
+  &[data-open="false"] &__caret {
+    transform: rotate(-90deg);
+  }
+
+  &__body {
+    padding-bottom: 12px;
+  }
+
+  // Paragon's own per-group label — hidden visually since the toggle button
+  // above already shows it, but kept in the DOM (not display:none) so the
+  // checkbox group's aria-labelledby association still resolves.
+  .pgn__checkbox-filter-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  // Paragon sets this class to inline-flex (shrink to content); flex + width
+  // make the row span the full panel, so the badge's margin-left: auto below
+  // can actually reach the right edge. min-width: 0 throughout stops a long
+  // label from forcing the row (and the fixed-width sidebar) wider.
+  .pgn__form-checkbox {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    margin: 0 -8px;
+    border-radius: 8px;
+    min-width: 0;
+    transition: background 150ms;
+
+    &:hover {
+      background: brand.$color-sand;
+    }
+
+    // FormCheckbox's own label wrapper (its second child div).
+    > div {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+  }
+
+  // Native checkbox fully replaced (appearance: none) and redrawn as the
+  // mockup's rounded box with its own checkmark on :checked.
+  .pgn__form-checkbox-input {
+    appearance: none;
+    margin: 0;
+    // Paragon's own min-width: 1.25rem on this class would otherwise floor
+    // this at 20px wide regardless of the width set here.
+    width: 16px;
+    min-width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    border: 1.5px solid brand.$color-bark;
+    background-color: brand.$color-white;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px 11px;
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+
+    &:checked {
+      background-color: brand.$color-saffron;
+      border-color: brand.$color-saffron;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231C0A00' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+    }
+
+    &:focus-visible {
+      outline: brand.$focus-ring-width solid brand.$focus-ring-color;
+      outline-offset: 2px;
+    }
+
+    // Paragon draws its own focus box on plain :focus (fires on every click),
+    // not just :focus-visible — cleared in favor of the outline above.
+    &:focus::before {
+      content: none;
+    }
+  }
+
+  // Paragon renders this as a <p>, not a <label> — `.pgn__form-label` is the
+  // stable class hook either way.
+  .pgn__form-label {
+    font-size: brand.$font-size-caption;
+    color: brand.$text-color-primary;
+    width: 100%;
+    min-width: 0;
+  }
+
+  // Holds the choice's name and its count badge. Paragon's Stack doesn't
+  // grow this to full width by default, so the badge's margin-left: auto
+  // would have nowhere to push to.
+  .pgn__hstack {
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: flex-start;
+    overflow-wrap: anywhere;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: brand.$color-sand;
+    color: brand.$color-clay;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+}
+
+// Applied-filter chips, rendered under the "Showing X-Y of Z" control bar.
+// padding-left matches that count text's own inset so the two line up.
+.catalog-filter-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  margin-bottom: brand.$spacing-6;
+  padding-left: 12px;
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: brand.$color-sand;
+    border: 1px solid brand.$border-color;
+    border-radius: brand.$border-radius-full;
+    padding: 5px 6px 5px 12px;
+    font-size: brand.$font-size-caption;
+    font-weight: 500;
+    color: brand.$color-espresso;
+
+    button {
+      width: 18px;
+      height: 18px;
+      border: none;
+      border-radius: 50%;
+      background: brand.$color-bark;
+      color: brand.$color-deep-brown;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+
+      &:hover {
+        background: brand.$color-saffron;
+        color: brand.$color-espresso;
+      }
+    }
+  }
+}
+
+// Paragon's default card-like background/shadow on the results wrapper —
+// the mockup has no such box, only the individual course cards are boxed.
+.pgn__data-table-wrapper {
+  background: transparent !important;
+}
+
+// "Showing X-Y of Z courses" text comes from CatalogRowStatus, a custom
+// RowStatusComponent (Paragon's default wording has no CSS-only fix).
+.pgn__smart-status {
+  font-size: brand.$font-size-caption;
+  color: brand.$color-deep-brown;
+  font-family: brand.$font-family-brand-ui;
+
+  strong {
+    color: brand.$color-espresso;
+    font-weight: 600;
+  }
+}
+
+// Card grid. This is a Bootstrap Row/Col grid, not CSS grid (column count
+// is set via CardView's `columnSizes` prop instead) — so the gutter is set
+// by redefining the variables Paragon's own row/col rules already read.
+.pgn__data-table-card-view {
+  --pgn-spacing-grid-gutter-width: 20px;
+  --pgn-spacing-card-margin-grid-bottom: 20px;
+}
+
+// Empty results.
+.pgn__data-table-empty {
+  border: 1px dashed brand.$border-color;
+  border-radius: brand.$border-radius-lg;
+  padding: 44px 30px;
+  text-align: center;
+  font-family: brand.$font-family-brand-ui;
+  color: brand.$text-color-primary;
+}
+
+// Pagination footer.
+.pgn__data-table-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 36px;
+  padding-top: 22px;
+  border-top: 1px solid brand.$color-sand;
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    list-style: none;
+  }
+
+  .page-item {
+    .page-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: brand.$minimum-touch-target;
+      height: brand.$minimum-touch-target;
+      padding: 0 12px;
+      border-radius: brand.$border-radius-md;
+      border: 1.5px solid brand.$border-color;
+      background: brand.$color-white;
+      color: brand.$color-deep-brown;
+      font-family: brand.$font-family-brand-ui;
+      font-weight: 500;
+      transition: background 150ms, color 150ms, border-color 150ms;
+
+      &:hover:not(:disabled) {
+        background: rgba(107, 51, 0, .08);
+        border-color: brand.$color-deep-saffron;
+        color: brand.$color-deep-saffron;
+      }
+
+      &:focus-visible {
+        outline: brand.$focus-ring-width solid brand.$focus-ring-color;
+        outline-offset: 2px;
+      }
+
+      // Same as the sidebar checkboxes: Paragon's own focus box fires on
+      // every click, not just keyboard use — cleared in favor of the outline.
+      &:focus::before {
+        content: none;
+      }
+    }
+
+    &.active .page-link {
+      background: brand.$color-saffron;
+      border-color: brand.$color-saffron;
+      color: brand.$color-espresso;
+    }
+
+    &.disabled .page-link {
+      opacity: .4;
+      cursor: default;
     }
   }
 }
