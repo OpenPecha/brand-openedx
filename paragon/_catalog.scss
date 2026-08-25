@@ -458,24 +458,17 @@
 
   .course-card__title {
     margin: 0;
-    // Course titles are the author's own words, so they take Jomolhari per the
-    // site's font policy — the same rule the hero cards follow. Left unset,
-    // this inherits the base stack, which puts Noto Serif Tibetan first: the
-    // face reserved for the platform's own static UI text, not authored
-    // content. Jomolhari's unicode-range is Tibetan-only, so Latin characters
-    // in a title still fall through to the UI face unaffected.
+    // Author-written content, so Jomolhari per the site's font policy.
     font-family: brand.$font-family-jomolhari, brand.$font-family-brand-ui;
     font-size: brand.$font-size-caption;
     font-weight: 500;
-    line-height: 1.5;
+    // Tall enough for Jomolhari's stacked Tibetan glyphs to clear the
+    // overflow:hidden below without clipping.
+    line-height: 2;
     color: brand.$text-color-primary;
     text-wrap: pretty;
-    // Reserve space for 3 lines regardless of actual length, so card height
-    // is constant across categories instead of tracking the longest title in
-    // whichever tab is active. min-height (not height) lets a genuinely short
-    // title's box still shrink-wrap if line-height rounds it under 3 lines,
-    // while never growing past 3 — the clamp below cuts off anything longer.
-    min-height: calc(1.5em * 3);
+    // Reserves 3 lines so card height stays constant. Must match line-height.
+    min-height: calc(2em * 3);
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
