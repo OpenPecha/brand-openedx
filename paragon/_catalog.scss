@@ -1006,6 +1006,35 @@
         border-radius: brand.$border-radius-full;
       }
     }
+
+    // The clear ("x") button that appears once there's a query — Paragon's
+    // default IconButton variant renders it as a filled navy circle, which
+    // doesn't match this page's plain-icon treatment (used above for the
+    // search icon itself).
+    .pgn__searchfield .pgn__searchfield__iconbutton-reset {
+      color: brand.$color-clay;
+      background: transparent;
+      border: 0;
+
+      &:hover,
+      &:focus {
+        color: brand.$color-deep-saffron;
+        background: transparent;
+      }
+
+      // Paragon's own :focus rule (fires on every click, not just keyboard
+      // use) sets a ring via box-shadow, not background — background alone
+      // above wasn't enough to clear it.
+      &:focus {
+        box-shadow: none;
+      }
+
+      &:focus-visible {
+        outline: 2px solid brand.$color-deep-saffron;
+        outline-offset: 2px;
+        border-radius: brand.$border-radius-full;
+      }
+    }
   }
 }
 
