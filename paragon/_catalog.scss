@@ -582,6 +582,36 @@
         }
       }
     }
+
+    // The clear ("x") button that appears once there's a query. Paragon's
+    // default IconButton variant draws it as a filled navy circle, which
+    // matches neither the pill nor the plain leading icon above. Kept in step
+    // with the same rule on .catalog-page-head__search — if you change one,
+    // change both.
+    .pgn__searchfield .pgn__searchfield__iconbutton-reset {
+      color: brand.$color-clay;
+      background: transparent;
+      border: 0;
+
+      &:hover,
+      &:focus {
+        color: brand.$color-deep-saffron;
+        background: transparent;
+      }
+
+      // Paragon's own :focus rule (which fires on every click, not just
+      // keyboard use) draws its ring with box-shadow, not background, so
+      // clearing the background above isn't enough on its own.
+      &:focus {
+        box-shadow: none;
+      }
+
+      &:focus-visible {
+        outline: 2px solid brand.$color-deep-saffron;
+        outline-offset: 2px;
+        border-radius: brand.$border-radius-full;
+      }
+    }
   }
 
   &__visual {
@@ -1038,11 +1068,17 @@
   }
 }
 
+// Where the sticky filter panel parks below the top of the viewport: the site
+// header's height plus a gap. Named rather than inlined because two rules
+// below depend on it, but note it does not track the header automatically —
+// if the header's height changes, this needs changing with it.
+$filter-panel-sticky-top: 88px;
+
 // Filter sidebar panel. The collapsible groups are a custom component
 // (CollapsibleFilterGroup) — Paragon only renders a flat, non-collapsing list.
-.pgn__data-table-layout-sidebar {
+.catalog-page .pgn__data-table-layout-sidebar {
   position: sticky;
-  top: 88px;
+  top: $filter-panel-sticky-top;
   background: brand.$color-white !important;
   border: 1px solid brand.$border-color;
   border-radius: brand.$border-radius-lg !important;
@@ -1054,14 +1090,15 @@
   width: 280px !important;
   flex: 0 0 280px !important;
   min-width: 0 !important;
+  // A sticky panel can't be scrolled by the page, so it has to scroll itself:
+  // with several groups expanded (real catalogs run to dozens of orgs) the
+  // panel outgrows the viewport, and without this the filters past the fold —
+  // and the "Clear all" button — are unreachable by any means.
+  max-height: calc(100vh - #{$filter-panel-sticky-top} - #{brand.$spacing-6});
+  overflow-y: auto;
 }
 
-// position: relative so it (not the sidebar's own position: sticky, which
-// wasn't a reliable anchor for this) is the containing block for the
-// absolutely-positioned "Clear all" button below.
-.pgn__data-table-side-filters {
-  position: relative;
-
+.catalog-page .pgn__data-table-side-filters {
   hr {
     display: none;
   }
@@ -1071,7 +1108,7 @@
 // together as one element via DataTable's `filtersTitle` prop (see
 // CatalogFiltersHeader). Flex, not absolute positioning, so a longer
 // translation of "Filters" pushes the button aside instead of colliding.
-.pgn__data-table-side-filters-title {
+.catalog-page .pgn__data-table-side-filters-title {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -1110,16 +1147,17 @@
   }
 }
 
-.pgn__data-table-side-filters-item {
+.catalog-page .pgn__data-table-side-filters-item {
   border-top: 1px solid brand.$color-sand;
 }
 
 // Paragon also renders its own "Clear filters" button after the last filter
 // group, with no prop to move or relabel it. The real, translatable button
 // lives in the title row above (CatalogFiltersHeader), so this duplicate is
-// hidden rather than restyled.
-.pgn__data-table-side-filters-status {
-  display: none;
+// hidden rather than restyled. !important because Paragon sets display: flex
+// on it from a three-class selector, which outranks this one.
+.catalog-page .pgn__data-table-side-filters-status {
+  display: none !important;
 }
 
 .catalog-filter-group {
@@ -1303,9 +1341,12 @@
     font-weight: 500;
     color: brand.$color-espresso;
 
+    // 24px, not the mockup's 18px: 24 is the smallest target size that meets
+    // WCAG 2.2, and the rest of this page already holds to it. The glyph stays
+    // small so the chip's proportions barely change.
     button {
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       border: none;
       border-radius: 50%;
       background: brand.$color-bark;
@@ -1315,6 +1356,7 @@
       align-items: center;
       justify-content: center;
       padding: 0;
+      flex-shrink: 0;
 
       svg {
         width: 12px;
@@ -1331,13 +1373,13 @@
 
 // Paragon's default card-like background/shadow on the results wrapper —
 // the mockup has no such box, only the individual course cards are boxed.
-.pgn__data-table-wrapper {
+.catalog-page .pgn__data-table-wrapper {
   background: transparent !important;
 }
 
 // "Showing X-Y of Z courses" text comes from CatalogRowStatus, a custom
 // RowStatusComponent (Paragon's default wording has no CSS-only fix).
-.pgn__smart-status {
+.catalog-page .pgn__smart-status {
   font-size: brand.$font-size-caption;
   color: brand.$color-deep-brown;
   font-family: brand.$font-family-brand-ui;
@@ -1351,13 +1393,13 @@
 // Card grid. This is a Bootstrap Row/Col grid, not CSS grid (column count
 // is set via CardView's `columnSizes` prop instead) — so the gutter is set
 // by redefining the variables Paragon's own row/col rules already read.
-.pgn__data-table-card-view {
+.catalog-page .pgn__data-table-card-view {
   --pgn-spacing-grid-gutter-width: 20px;
   --pgn-spacing-card-margin-grid-bottom: 20px;
 }
 
 // Empty results.
-.pgn__data-table-empty {
+.catalog-page .pgn__data-table-empty {
   border: 1px dashed brand.$border-color;
   border-radius: brand.$border-radius-lg;
   padding: 44px 30px;
@@ -1371,7 +1413,7 @@
 // renders nothing when there's only one page of results, and a wrapper-level
 // border would otherwise leave a line floating under the cards with nothing
 // beneath it.
-.pgn__data-table-footer {
+.catalog-page .pgn__data-table-footer {
   display: flex;
   justify-content: center;
   padding-top: 0;
