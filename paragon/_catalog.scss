@@ -16,6 +16,9 @@
 
   @media (max-width: 760px) {
     --pc-per-view: 2;
+    // A third of the desktop padding: 48px above the title leaves a large
+    // gap under the hero on a phone, where vertical space is scarce.
+    padding: brand.$spacing-4 0;
   }
 
   @media (max-width: 460px) {
@@ -845,7 +848,7 @@
     grid-template-columns: 1fr;
     min-height: 0;
     gap: 28px;
-    padding: 44px brand.$spacing-6 brand.$spacing-8;
+    padding: 44px brand.$spacing-6 brand.$spacing-6;
 
     &__visual {
       height: 364px;
@@ -853,36 +856,125 @@
   }
 
   @media (max-width: 760px) {
-    // Stacked absolute cards don't fit a narrow screen, so the back card
-    // steps aside and the front one goes full width.
+    // Both cards stay on phones, still overlapping side by side — just
+    // smaller, with a deeper overlap, and the pair centred instead of
+    // anchored to the visual's right edge. The cards keep their absolute
+    // positioning, since the overlap depends on it.
+    --hero-card-width: 150px;
+    // Negative, unlike the desktop value: here the pair overlaps by this
+    // much rather than sitting apart. The whole pair is 2 x width + gap.
+    --hero-card-gap: -32px;
+
     &__visual {
-      height: auto;
-      display: flex;
-      justify-content: center;
-      // Only guards the stacked layout; kept here it'd force horizontal
-      // scroll on phones.
+      // Sized to the pair and centred, so the cards' `right` anchoring puts
+      // them mid-screen. Fits the 280px content box of a 320px phone.
+      width: calc(var(--hero-card-width) * 2 + var(--hero-card-gap));
       min-width: 0;
+      // Absolute children add no height, so this has to be stated. Sized to
+      // the front card's 24px offset plus the tallest a card can get (86px
+      // image + 34px badge + 98px of text at three clamped title lines
+      // = 218px), and no more — surplus here shows up as dead space between
+      // the cards and the carousel below.
+      height: 246px;
+      margin-inline: auto;
     }
 
     &__card {
-      // Relative, not static: stays a positioning context for the ribbon,
-      // which would otherwise resolve against &__visual.
-      position: relative;
-      width: 100%;
-      max-width: 300px;
-      opacity: 1;
+      // Bobbing in a cramped space reads as jitter, and hover is moot here.
       animation: none;
       transition: none;
-      box-shadow: 0 8px 26px rgba(28, 10, 0, .12);
+      box-shadow: 0 6px 18px rgba(28, 10, 0, .14);
+      border-radius: 12px;
+    }
+
+    // Shallower offsets than desktop: less room to spare vertically.
+    &__card--front {
+      top: 24px;
     }
 
     &__card--back {
-      display: none;
+      top: 0;
+    }
+
+    &__card-image {
+      border-radius: 11px 11px 0 0;
+    }
+
+    // Card chrome scaled to match: at 150px wide the desktop badge would
+    // cover most of the card, and the ribbon would overhang it.
+    &__card-badge {
+      margin: -18px 0 8px 10px;
+      width: 82px;
+      height: 44px;
+      padding: 5px 8px;
+      font-size: 15px;
+      letter-spacing: 1px;
+
+      img {
+        max-height: 28px;
+      }
+    }
+
+    // Every length here is ~0.7x its desktop value; they have to scale
+    // together or the rotated band stops meeting the corner tails.
+    &__card-ribbon {
+      top: -4px;
+      right: -4px;
+      width: 64px;
+      height: 64px;
+
+      &::before,
+      &::after {
+        border-width: 2px;
+      }
+
+      span {
+        width: 96px;
+        left: -11px;
+        top: 13px;
+        padding: 6px 0;
+        font-size: 9px;
+      }
+    }
+
+    &__card-text {
+      gap: 4px;
+      padding: 0 10px 12px;
+    }
+
+    &__card-provider {
+      font-size: 12px;
+    }
+
+    &__card-title {
+      font-size: 11px;
+      // Not tightened along with the font size: Jomolhari's stacked Tibetan
+      // glyphs are taller than the Latin ones and get clipped below about
+      // 2em. Same value the catalog card uses for the same reason.
+      line-height: 2;
+      // Bounded so a long title can't push the card past the fixed height
+      // set on &__visual above.
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      overflow: hidden;
+    }
+
+    // The full placeholder doesn't fit a phone at the desktop size.
+    // NOTE: below 16px, iOS Safari zooms the page in when the field is
+    // focused. Raise this back to 16px if that becomes a problem.
+    &__search .pgn__searchfield .form-control {
+      font-size: 14px;
+      // Minimal side padding: the leading icon already provides the visual
+      // inset, and the desktop 20px pushes the text noticeably off it while
+      // eating width the full placeholder needs.
+      padding: brand.$spacing-3 brand.$spacing-1;
     }
   }
 
   @media (max-width: 600px) {
-    padding: 36px 20px 28px;
+    padding: 36px 20px 20px;
   }
 
   // Matches .course-categories' ultra-wide scale-up.
