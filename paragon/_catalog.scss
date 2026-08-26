@@ -1067,7 +1067,15 @@
   }
 }
 
+// The title row holds both "Filters" and the "Clear all" button, supplied
+// together as one element via DataTable's `filtersTitle` prop (see
+// CatalogFiltersHeader). Flex, not absolute positioning, so a longer
+// translation of "Filters" pushes the button aside instead of colliding.
 .pgn__data-table-side-filters-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: brand.$spacing-3;
   font-family: brand.$font-family-brand-display;
   font-size: 21px;
   font-weight: 500;
@@ -1076,68 +1084,42 @@
   padding-bottom: 12px;
 }
 
+.catalog-filters-header__clear {
+  flex: 0 0 auto;
+  min-height: auto;
+  padding: 0;
+  font-family: brand.$font-family-brand-ui;
+  font-size: brand.$font-size-caption;
+  font-weight: 600;
+  color: brand.$color-deep-saffron;
+
+  // Paragon's Button sets its own color and (for link/tertiary variants) a
+  // background fill on these states at higher specificity than one class.
+  &:hover,
+  &:focus,
+  &:active {
+    color: brand.$primary-hover !important;
+    background: transparent !important;
+    text-decoration: underline;
+  }
+
+  // Paragon's Button draws a focus box as a ::before overlay on plain
+  // :focus, which fires on every click, not just keyboard use.
+  &:focus::before {
+    content: none;
+  }
+}
+
 .pgn__data-table-side-filters-item {
   border-top: 1px solid brand.$color-sand;
 }
 
-// Paragon renders this after every filter group, not next to the "Filters"
-// title — pulled out of flow and placed top-right against .pgn__data-table-
-// side-filters (see its position: relative above) to match the design.
+// Paragon also renders its own "Clear filters" button after the last filter
+// group, with no prop to move or relabel it. The real, translatable button
+// lives in the title row above (CatalogFiltersHeader), so this duplicate is
+// hidden rather than restyled.
 .pgn__data-table-side-filters-status {
-  position: absolute;
-  top: 3px;
-  right: 0;
-  margin: 0;
-
-  // Swaps the label to "Clear all" — SidebarFilters renders this button
-  // internally with no prop to override its text. font-size: 0 on the real
-  // text caused some browsers to still reserve space for it, overlapping
-  // with the replacement text — so instead the real text stays its natural
-  // size (just transparent, keeping the button's layout/hit area intact)
-  // and the replacement is layered on top via ::after.
-  .pgn__smart-status-button {
-    position: relative;
-    min-height: auto;
-    padding: 0;
-    font-size: brand.$font-size-caption;
-    font-weight: 600;
-
-    // !important: Paragon's own .btn:hover/:focus/:active rules set their
-    // own color (and, since this is a tertiary-variant Button, a gray
-    // background fill) at higher specificity than a plain class selector.
-    // The color override stops the real "Clear filters" text from
-    // reappearing behind the "Clear all" overlay below; background is
-    // cleared since this reads as a plain text link, not a filled button.
-    &,
-    &:hover,
-    &:focus,
-    &:focus-visible,
-    &:active {
-      color: transparent !important;
-      background: transparent !important;
-    }
-
-    // Paragon's own Button draws a focus box as a `::before` overlay on
-    // plain :focus (fires on every click, not just keyboard use) — same
-    // issue as the sidebar checkboxes and pagination, cleared here too.
-    &:focus::before {
-      content: none;
-    }
-
-    &::after {
-      content: "Clear all";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      color: brand.$color-deep-saffron;
-    }
-
-    &:hover::after {
-      color: brand.$primary-hover;
-      text-decoration: underline;
-    }
-  }
+  display: none;
 }
 
 .catalog-filter-group {
@@ -1184,16 +1166,14 @@
     padding-bottom: 12px;
   }
 
-  // Paragon's own per-group label — hidden visually since the toggle button
-  // above already shows it, but kept in the DOM (not display:none) so the
-  // checkbox group's aria-labelledby association still resolves.
+  // Paragon's own per-group label, fully hidden: the collapsible toggle
+  // button already shows this exact text, so leaving it visible to either
+  // the eye or the accessibility tree would duplicate it. display: none is
+  // safe here specifically because the checkbox group names itself via
+  // aria-labelledby, and name computation reads a referenced element's text
+  // whether or not it is hidden.
   .pgn__checkbox-filter-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
+    display: none;
   }
 
   // Paragon's own FormControlSet wrapper (one per filter group, holding all
@@ -1386,16 +1366,30 @@
   color: brand.$text-color-primary;
 }
 
-// Pagination footer.
+// Pagination footer. The divider and spacing live on the pager itself, not
+// on this wrapper (and Paragon's own border-top on it is cleared) — the pager
+// renders nothing when there's only one page of results, and a wrapper-level
+// border would otherwise leave a line floating under the cards with nothing
+// beneath it.
 .pgn__data-table-footer {
   display: flex;
   justify-content: center;
-  margin-top: 36px;
-  padding-top: 22px;
-  border-top: 1px solid brand.$color-sand;
+  padding-top: 0;
+  border-top: 0;
+
+  // The pager's own <nav> wrapper — full width so the divider spans the
+  // results column, and it's the element that disappears along with the
+  // pager, taking the divider with it.
+  > nav {
+    width: 100%;
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1px solid brand.$color-sand;
+  }
 
   .pagination {
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 6px;
     margin: 0;
