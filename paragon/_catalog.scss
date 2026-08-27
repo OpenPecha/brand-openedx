@@ -1279,7 +1279,9 @@ $filter-panel-sticky-top: 88px;
     --pgn-btn-focus-outline-color: #{brand.$focus-ring-color};
 
     min-height: brand.$minimum-touch-target;
-    border-radius: brand.$border-radius-full;
+    // Matches the desktop sidebar panel's own radius, not a full pill, so the
+    // two read as the same surface across the breakpoint.
+    border-radius: brand.$border-radius-lg;
     border-width: 1.5px;
     // Same typeface as the sidebar's "Filters" heading on wider screens so the
     // two read as the same element, a little smaller since this one is a
@@ -1531,8 +1533,29 @@ $filter-panel-sticky-top: 88px;
   background: transparent !important;
 }
 
+// Paragon insets this row 12px on all four sides. Pulled up past zero, not
+// just to zero, so the "Showing …" text's own line-height (empty space above
+// the letterforms) doesn't read as a second gap on top of the removed inset.
+// The side inset stays, since the filter chips below are aligned to it.
+// Scoped to the sidebar layout's own breakpoint (matches the isMedium check
+// in CourseCatalogDataTableSlot: showFiltersInSidebar is true only above
+// breakpoints.large.maxWidth, ~1200px — not breakpoints.large.minWidth,
+// 992px, which is where the sidebar layout *starts* becoming available but
+// isMedium is still true, so React is still rendering the mobile dropdown).
+// Below the real threshold, this same negative margin was pulling that
+// dropdown button up into the search bar above it.
+@media (min-width: 1200px) {
+  .catalog-page .pgn__data-table-status-bar {
+    padding-top: 0;
+    margin-top: -3px;
+  }
+}
+
 // "Showing X-Y of Z courses" text comes from CatalogRowStatus, a custom
-// RowStatusComponent (Paragon's default wording has no CSS-only fix).
+// RowStatusComponent (Paragon's default wording has no CSS-only fix). Below
+// the sidebar breakpoint, with filters active, Paragon swaps this same slot
+// for FilterStatus's "Filtered by X" + "Clear all" button instead (wording
+// fixed via CatalogFilterStatus — styling here).
 .catalog-page .pgn__smart-status {
   font-size: brand.$font-size-caption;
   color: brand.$color-deep-brown;
@@ -1541,6 +1564,31 @@ $filter-panel-sticky-top: 88px;
   strong {
     color: brand.$color-espresso;
     font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 brand.$spacing-2;
+  }
+
+  .pgn__smart-status-button {
+    min-height: auto;
+    padding: 0;
+    font-family: brand.$font-family-brand-ui;
+    font-size: brand.$font-size-caption;
+    font-weight: 600;
+    color: brand.$color-deep-saffron;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: brand.$primary-hover !important;
+      background: transparent !important;
+      text-decoration: underline;
+    }
+
+    &:focus::before {
+      content: none;
+    }
   }
 }
 
@@ -1587,11 +1635,14 @@ $filter-panel-sticky-top: 88px;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     margin: 0;
     list-style: none;
   }
 
+  // Borderless: numbers sit directly on the page background, and only the
+  // current page gets a filled square. Arrows are icon-only (see .previous
+  // below) and match the numbers' plain-text treatment.
   .page-item {
     .page-link {
       display: flex;
@@ -1601,16 +1652,15 @@ $filter-panel-sticky-top: 88px;
       height: brand.$minimum-touch-target;
       padding: 0 12px;
       border-radius: brand.$border-radius-md;
-      border: 1.5px solid brand.$border-color;
-      background: brand.$color-white;
+      border: none;
+      background: transparent;
       color: brand.$color-deep-brown;
       font-family: brand.$font-family-brand-ui;
-      font-weight: 500;
-      transition: background 150ms, color 150ms, border-color 150ms;
+      font-weight: 600;
+      transition: background 150ms, color 150ms;
 
       &:hover:not(:disabled) {
         background: rgba(107, 51, 0, .08);
-        border-color: brand.$color-deep-saffron;
         color: brand.$color-deep-saffron;
       }
 
@@ -1624,17 +1674,107 @@ $filter-panel-sticky-top: 88px;
       &:focus::before {
         content: none;
       }
+
+      // Icon-only "Previous"/"Next" — Paragon's own Button always renders the
+      // "Previous"/"Next" text alongside the arrow icon with no prop to hide
+      // just the text, so it's hidden here instead. The accessible name is
+      // unaffected: it comes from Pagination's own aria-label (built from the
+      // same "Previous"/"Next" strings), not from the visible text, so a
+      // screen reader still announces "Previous" / "Next, Page 2" as before.
+      // .previous matches both buttons — a long-standing Paragon quirk gives
+      // the "Next" button this class too — but never the numbered buttons,
+      // whose text this must not touch.
+      // Circular, not the numbers' rounded square: with the text hidden
+      // there's only the icon left, and the numbers' left/right padding would
+      // otherwise stretch this into a rectangle rather than a square — which
+      // then shows up as a rectangular, not circular, hover/active background.
+      &.previous {
+        font-size: 0;
+        color: brand.$color-clay;
+        width: brand.$minimum-touch-target;
+        padding: 0;
+        border-radius: 50%;
+
+        // The icon's own margin-inline-end (Button's default spacing before
+        // its now-hidden text) otherwise pushes it off-center within the
+        // circle.
+        .btn-icon-before {
+          margin: 0;
+        }
+      }
     }
 
     &.active .page-link {
       background: brand.$color-saffron;
-      border-color: brand.$color-saffron;
       color: brand.$color-espresso;
+
+      // Already the active page — a hover color/background shift here would
+      // read as if a click had done something, when it hasn't.
+      &:hover {
+        background: brand.$color-saffron;
+        color: brand.$color-espresso;
+      }
     }
 
     &.disabled .page-link {
-      opacity: .4;
+      opacity: .35;
       cursor: default;
+
+      &:hover {
+        background: transparent;
+        color: brand.$color-clay;
+      }
+    }
+  }
+
+  // The "3 of 6" dropdown Pagination's own 'reduced' variant swaps in below
+  // a viewport breakpoint (see CatalogPagination) — an unstyled Paragon
+  // tertiary Dropdown, same as the number buttons were before this file
+  // branded them.
+  .dropdown-toggle {
+    border: none;
+    border-radius: brand.$border-radius-md;
+    background: transparent;
+    color: brand.$color-deep-brown;
+    font-family: brand.$font-family-brand-ui;
+    font-weight: 600;
+
+    &:hover,
+    &:focus,
+    &.show {
+      background: rgba(107, 51, 0, .08);
+      color: brand.$color-deep-saffron;
+    }
+
+    &:focus-visible {
+      outline: brand.$focus-ring-width solid brand.$focus-ring-color;
+      outline-offset: 2px;
+    }
+
+    // Same as elsewhere on this page: Paragon's own focus box fires on every
+    // click, not just keyboard use.
+    &:focus::before {
+      content: none;
+    }
+  }
+
+  .pagination-reduced-dropdown-menu {
+    border: 1px solid brand.$border-color;
+    border-radius: brand.$border-radius-lg;
+    box-shadow: 0 12px 32px rgba(28, 10, 0, 0.13);
+    padding: brand.$spacing-2;
+  }
+
+  .pgn__dropdown-item {
+    border-radius: brand.$border-radius-sm;
+    color: brand.$color-deep-brown;
+    font-family: brand.$font-family-brand-ui;
+    text-align: center;
+
+    &:hover,
+    &:focus {
+      background: brand.$color-sand;
+      color: brand.$color-espresso;
     }
   }
 }
