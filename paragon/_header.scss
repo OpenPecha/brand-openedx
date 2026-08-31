@@ -275,6 +275,13 @@ $nav-underline-radius: 2px;
   color: brand.$color-saffron;
 }
 
+// The border lives here, on the button, not on the photo inside it. Putting it
+// on the photo instead (an earlier version of this rule did) means two
+// independently-rounded shapes - the button's own circle and the photo's own
+// clipped circle - sit almost but not quite on top of each other, and their
+// separately anti-aliased edges leave a hairline gap where this button's own
+// saffron background (below) shows through as a thin orange line. One rounded
+// shape, clipped once by `overflow: hidden` below, has no seam to leave.
 .nav-profile {
   display: flex;
   align-items: center;
@@ -283,7 +290,7 @@ $nav-underline-radius: 2px;
   width: brand.$minimum-touch-target;
   height: brand.$minimum-touch-target;
   padding: 0;
-  border: none;
+  border: 2px solid brand.$color-sand;
   border-radius: brand.$border-radius-full;
   background-color: brand.$color-saffron;
   color: brand.$color-espresso;
@@ -309,19 +316,12 @@ $nav-underline-radius: 2px;
   box-shadow: 0 0 0 5px brand.$color-sand;
 }
 
-// The photo variant is framed rather than filling the circle edge to edge. A
-// photo is visually louder than the plain-stroke locale icon it sits beside at
-// the same 44px footprint, so a light ring settles it down. box-sizing:
-// border-box (set above for every element in the header) means this border is
-// drawn inside the 100% box, so it insets the photo on its own - no separate
-// width/height reduction needed, and the parent's saffron background (used for
-// the initials variant) never shows through it.
+// Just fills the button - the border and the round clip both belong to
+// .nav-profile above, not to this image.
 .nav-profile-photo {
   display: block;
   width: 100%;
   height: 100%;
-  border: 2px solid brand.$color-sand;
-  border-radius: brand.$border-radius-full;
   object-fit: cover;
 }
 
@@ -538,6 +538,10 @@ $nav-underline-radius: 2px;
   padding: brand.$spacing-2 brand.$spacing-3;
 }
 
+// Border and round clip belong here, on the one shape, for the same reason as
+// .nav-profile above: putting the border on the img instead leaves a hairline
+// gap between two separately-rounded edges, where the saffron background here
+// shows through as a thin line.
 .nav-menu-id-avatar {
   display: flex;
   align-items: center;
@@ -546,6 +550,7 @@ $nav-underline-radius: 2px;
   flex-shrink: 0;
   width: brand.$spacing-8;
   height: brand.$spacing-8;
+  border: 1.5px solid brand.$color-sand;
   border-radius: brand.$border-radius-full;
   background-color: brand.$color-saffron;
   color: brand.$color-espresso;
@@ -554,16 +559,10 @@ $nav-underline-radius: 2px;
   letter-spacing: 0.3px;
 }
 
-// Same framing as the trigger's .nav-profile-photo, thinned slightly to match
-// this avatar's smaller 32px circle. This selector has higher specificity than
-// .nav-profile-photo, so it needs its own copy of the rule rather than
-// inheriting it.
 .nav-menu-id-avatar img {
   display: block;
   width: 100%;
   height: 100%;
-  border: 1.5px solid brand.$color-sand;
-  border-radius: brand.$border-radius-full;
   object-fit: cover;
 }
 
