@@ -670,6 +670,10 @@ $nav-underline-radius: 2px;
     max-height: #{"calc(100vh - #{brand.$spacing-16} - #{brand.$spacing-8})"};
     overflow-y: auto;
   }
+
+  .nav-brand-name {
+    font-size: #{"clamp(14px, 4.4vw, #{brand.$font-size-h4})"};
+  }
 }
 
 // Above the collapse breakpoint the bar still carries every navigation link, but
