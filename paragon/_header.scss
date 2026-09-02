@@ -50,14 +50,14 @@ $nav-underline-radius: 2px;
   transition: transform 240ms ease;
 }
 
-// Lets a consuming app slide the header out of view once the footer scrolls
-// into view, so it moves away with the page instead of sitting pinned on top
-// of it. Applied to a top-level container that wraps the header - see
-// frontend-app-catalog's App.tsx, which toggles it from a scroll listener
-// watching the footer's position. .site-nav keeps `position: sticky`
-// throughout; only the transform changes, which is what makes this an
-// animation rather than a jump.
-.header-releases-sticky .site-nav {
+// Slides the header out of view once the page's footer scrolls into view, so it
+// moves away with the page instead of sitting pinned on top of it. The header
+// applies this class to itself - see `useReleaseNearFooter` in
+// frontend-component-header (src/site-header/) - so no consuming app needs its
+// own scroll-watching code. .site-nav keeps `position: sticky` throughout; only
+// the transform changes, which is what makes this an animation rather than a
+// jump.
+.site-nav.header-releases-sticky {
   transform: translateY(-100%);
 }
 
@@ -390,7 +390,12 @@ $nav-underline-radius: 2px;
   flex-direction: column;
   gap: 2px;
   min-width: 256px;
-  padding: brand.$spacing-2;
+  // Matches border-radius below, not spacing-2: padding smaller than the
+  // corner radius leaves a sliver where the curve cuts into the content box,
+  // so a row sitting flush against the edge (the top row, or the bottom one
+  // when scrolled all the way down) has its icon visibly touch the curve even
+  // though it never crosses the padding edge itself.
+  padding: brand.$border-radius-lg;
   border: 1px solid brand.$color-dusk;
   border-radius: brand.$border-radius-lg;
   background-color: brand.$color-white;
@@ -669,6 +674,15 @@ $nav-underline-radius: 2px;
     min-width: #{"min(292px, calc(100vw - #{brand.$spacing-8}))"};
     max-height: #{"calc(100vh - #{brand.$spacing-16} - #{brand.$spacing-8})"};
     overflow-y: auto;
+    // Without this, a row scrolled to the top or bottom edge can come to rest
+    // half cut off by the menu's own rounded border - most visible on a row's
+    // icon, whose curve makes a hard clip line obvious in a way a clipped line
+    // of text isn't. Snapping means scrolling always settles on a whole row.
+    scroll-snap-type: y mandatory;
+  }
+
+  .nav-menu-main > * {
+    scroll-snap-align: start;
   }
 
   .nav-brand-name {
