@@ -401,6 +401,22 @@ $nav-underline-radius: 2px;
   background-color: brand.$color-white;
   box-shadow: $nav-menu-shadow;
   transform-origin: top right;
+  // Every dropdown built on this class anchors below the same fixed-height
+  // header, at every screen width - not just the mobile burger menu, which is
+  // the only variant this used to be scoped to. Without a cap, a long list (the
+  // language menu with many released languages, most plausibly) can grow past
+  // the viewport with no way to reach what's below the fold.
+  max-height: #{"calc(100vh - #{brand.$spacing-16} - #{brand.$spacing-8})"};
+  overflow-y: auto;
+  // Without this, a row scrolled to the top or bottom edge can come to rest
+  // half cut off by the menu's own rounded border - most visible on a row's
+  // icon, whose curve makes a hard clip line obvious in a way a clipped line
+  // of text isn't. Snapping means scrolling always settles on a whole row.
+  scroll-snap-type: y mandatory;
+}
+
+.nav-menu > * {
+  scroll-snap-align: start;
 }
 
 .nav-menu-lang {
@@ -670,19 +686,10 @@ $nav-underline-radius: 2px;
     gap: brand.$spacing-2;
   }
 
+  // max-height, overflow-y and scroll-snap now live on the shared .nav-menu
+  // base rule above; only the narrower width is specific to this variant.
   .nav-menu-main {
     min-width: #{"min(292px, calc(100vw - #{brand.$spacing-8}))"};
-    max-height: #{"calc(100vh - #{brand.$spacing-16} - #{brand.$spacing-8})"};
-    overflow-y: auto;
-    // Without this, a row scrolled to the top or bottom edge can come to rest
-    // half cut off by the menu's own rounded border - most visible on a row's
-    // icon, whose curve makes a hard clip line obvious in a way a clipped line
-    // of text isn't. Snapping means scrolling always settles on a whole row.
-    scroll-snap-type: y mandatory;
-  }
-
-  .nav-menu-main > * {
-    scroll-snap-align: start;
   }
 
   .nav-brand-name {
