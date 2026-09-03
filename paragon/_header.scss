@@ -169,7 +169,7 @@ $nav-underline-radius: 2px;
 
 // ---------------------------------------------------------------- nav links
 
-.nav-links {
+.site-nav .nav-links {
   display: flex;
   align-items: center;
   gap: brand.$spacing-1;
@@ -179,7 +179,7 @@ $nav-underline-radius: 2px;
 // Unlike the icon buttons and menu rows, a nav link carries no hover background -
 // only the text darkens and the underline animates in. border-radius stays even
 // so, purely so the keyboard focus-visible outline below renders rounded.
-.nav-link {
+.site-nav .nav-link {
   position: relative;
   padding: brand.$spacing-2 brand.$spacing-3;
   border-radius: brand.$border-radius-md;
@@ -191,7 +191,7 @@ $nav-underline-radius: 2px;
   transition: color brand.$interaction-transition;
 }
 
-.nav-link::after {
+.site-nav .nav-link::after {
   content: '';
   position: absolute;
   left: brand.$spacing-3;
@@ -205,29 +205,29 @@ $nav-underline-radius: 2px;
   transition: transform brand.$interaction-transition;
 }
 
-.nav-link:hover {
+.site-nav .nav-link:hover {
   color: brand.$color-espresso;
 }
 
-.nav-link:hover::after {
+.site-nav .nav-link:hover::after {
   transform: scaleX(1);
 }
 
-.nav-link:active {
+.site-nav .nav-link:active {
   color: brand.$color-espresso;
 }
 
-.nav-link:active::after {
+.site-nav .nav-link:active::after {
   transform: scaleX(1);
   background-color: brand.$color-deep-saffron;
 }
 
-.nav-link-active {
+.site-nav .nav-link-active {
   color: brand.$color-espresso;
   font-weight: brand.$font-weight-semibold;
 }
 
-.nav-link-active::after {
+.site-nav .nav-link-active::after {
   transform: scaleX(1);
 }
 
@@ -380,7 +380,7 @@ $nav-underline-radius: 2px;
 
 // The Menu component mounts this only while open, so the resting state is the
 // visible one and the closed state lives in the transition classes below.
-.nav-menu {
+.site-nav .nav-menu {
   position: absolute;
   top: calc(100% + #{brand.$spacing-3});
   right: 0;
@@ -415,39 +415,39 @@ $nav-underline-radius: 2px;
   scroll-snap-type: y mandatory;
 }
 
-.nav-menu > * {
+.site-nav .nav-menu > * {
   scroll-snap-align: start;
 }
 
-.nav-menu-lang {
+.site-nav .nav-menu-lang {
   min-width: 192px;
 }
 
 // Burger menu hangs off the left edge instead.
-.nav-menu-main {
+.site-nav .nav-menu-main {
   right: auto;
   left: 0;
   min-width: 240px;
   transform-origin: top left;
 }
 
-.nav-menu-anim-enter {
+.site-nav .nav-menu-anim-enter {
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
 }
 
-.nav-menu-anim-enter-active {
+.site-nav .nav-menu-anim-enter-active {
   opacity: 1;
   transform: translateY(0) scale(1);
   transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.nav-menu-anim-exit {
+.site-nav .nav-menu-anim-exit {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-.nav-menu-anim-exit-active {
+.site-nav .nav-menu-anim-exit-active {
   opacity: 0;
   transform: translateY(-6px) scale(0.98);
   transition: opacity 160ms ease, transform 160ms ease;
@@ -646,19 +646,21 @@ $nav-underline-radius: 2px;
 // inset, because the shell's padding is narrower than the ring offset and an
 // outside ring would be clipped at the shell edge.
 .nav-brand:focus,
-.nav-link:focus,
+.site-nav .nav-link:focus,
 .nav-locale:focus,
 .nav-profile:focus,
 .nav-auth:focus,
+.nav-help:focus,
 .nav-menu-item:focus {
   outline: none;
 }
 
 .nav-brand:focus-visible,
-.nav-link:focus-visible,
+.site-nav .nav-link:focus-visible,
 .nav-locale:focus-visible,
 .nav-profile:focus-visible,
-.nav-auth:focus-visible {
+.nav-auth:focus-visible,
+.nav-help:focus-visible {
   outline: brand.$focus-ring-width solid brand.$focus-ring-color;
   outline-offset: brand.$focus-ring-offset;
 }
@@ -670,25 +672,33 @@ $nav-underline-radius: 2px;
 
 // ---------------------------------------------------------------- collapse
 
+// Scoped to the site bar rather than written against the bare `.nav-*` classes:
+// the learning header (see the learning variant below) reuses the same locale
+// button, avatar and auth buttons, but has no navigation links and so no burger
+// to collapse them into. Hiding them there would leave the visitor no way to
+// change language or reach their account at all. `:not()` rather than a plain
+// `.site-nav` prefix, because `.site-nav-learning` carries `.site-nav` too.
 @media (max-width: $nav-collapse) {
-  .nav-links,
-  .nav-locale-wrap,
-  .nav-profile-wrap,
-  .nav-auth {
+  .site-nav:not(.site-nav-learning) .nav-links,
+  .site-nav:not(.site-nav-learning) .nav-locale-wrap,
+  .site-nav:not(.site-nav-learning) .nav-profile-wrap,
+  .site-nav:not(.site-nav-learning) .nav-auth {
     display: none;
   }
 
+  // Left unscoped: only the site bar renders a burger at all, so this rule has
+  // nothing to match anywhere else.
   .nav-burger-wrap {
     display: block;
   }
 
-  .nav-left {
+  .site-nav:not(.site-nav-learning) .nav-left {
     gap: brand.$spacing-2;
   }
 
   // max-height, overflow-y and scroll-snap now live on the shared .nav-menu
   // base rule above; only the narrower width is specific to this variant.
-  .nav-menu-main {
+  .site-nav .nav-menu-main {
     min-width: #{"min(292px, calc(100vw - #{brand.$spacing-8}))"};
   }
 
@@ -712,5 +722,94 @@ $nav-underline-radius: 2px;
 
   .nav-brand-active::after {
     content: none;
+  }
+}
+
+// ---------------------------------------------------------------- learning variant
+
+// The course player's header. Same bar, same controls, but the course title
+// stands where the wordmark and navigation links do on the site bar - so there
+// is nothing here to collapse into a burger, and every control stays visible at
+// each width (see the collapse section above).
+//
+// Static rather than sticky, unlike the site bar: the courseware page already
+// stacks its own `position: sticky; top: 0` elements - the sequence navigation
+// and both sidebars - and a second sticky bar at z-index 100 would sit on top of
+// them. The height is deliberately left at the inherited $spacing-16, because
+// .nav-menu's max-height is measured against exactly that.
+.site-nav-learning {
+  position: static;
+  transform: none;
+  transition: none;
+}
+
+// The logo arrives through LogoSlot, whose inner <img> takes no class of ours,
+// so it is sized by descendant rather than through .nav-brand-logo.
+.nav-brand-learning img {
+  display: block;
+  flex: 0 0 auto;
+  width: brand.$spacing-8;
+  height: brand.$spacing-8;
+  object-fit: contain;
+}
+
+// The course title takes the wordmark's place beside the logo: same type scale,
+// and the same shrink-before-the-actions-do behaviour, but it is not a link.
+.nav-course-title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  color: brand.$color-espresso;
+  font-family: brand.$font-family-brand-ui;
+  font-size: brand.$font-size-h4;
+  font-weight: brand.$font-weight-semibold;
+  line-height: brand.$line-height-h4;
+}
+
+// One line, clipped with an ellipsis. A course title is arbitrary length and
+// wrapping it would grow the bar past the height .nav-menu is measured against.
+.nav-course-title .course-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Sits beside the locale button, so it is styled as a quiet link rather than as
+// a third button competing with the avatar.
+.nav-help {
+  display: inline-flex;
+  align-items: center;
+  padding-block: brand.$spacing-2;
+  padding-inline: brand.$spacing-3;
+  border-radius: brand.$border-radius-md;
+  color: brand.$color-deep-brown;
+  font-family: brand.$font-family-brand-ui;
+  font-size: brand.$font-size-caption;
+  font-weight: brand.$font-weight-medium;
+  line-height: brand.$line-height-caption;
+  white-space: nowrap;
+  transition: background brand.$interaction-transition, color brand.$interaction-transition;
+}
+
+.nav-help:hover {
+  background-color: brand.$color-sand;
+  color: brand.$color-espresso;
+}
+
+.nav-help:active {
+  background-color: brand.$color-dusk;
+}
+
+// Below the narrowest widths the course title alone earns the room; the help
+// link is reachable from the account menu's destinations either way.
+@media (max-width: $nav-collapse) {
+  .nav-help {
+    display: none;
+  }
+
+  .nav-course-title {
+    font-size: brand.$font-size-caption;
   }
 }
