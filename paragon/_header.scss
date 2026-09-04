@@ -816,21 +816,14 @@ $nav-underline-radius: 2px;
   }
 }
 
-// Above the collapse breakpoint the bar still carries every navigation link, but
-// below this width there is no room for the wordmark beside them. The logo alone
-// continues to link home and the link keeps its accessible name, so only the
-// visible text is dropped - and with it the marker that underlines that text.
+// A tighter gap at tablet widths than the full-width bar uses, so the nav
+// links (which never shrink, unlike .nav-brand) have more room before
+// crowding the wordmark. The wordmark itself doesn't need hiding here: it
+// already shrinks and truncates with an ellipsis (.nav-brand-name) before
+// .nav-links would ever be pushed off, so it can just be left to do that.
 @media (min-width: #{$nav-collapse + 1px}) and (max-width: 899px) {
   .nav-left {
     gap: brand.$spacing-4;
-  }
-
-  .nav-brand-name {
-    display: none;
-  }
-
-  .nav-brand-active::after {
-    content: none;
   }
 }
 
