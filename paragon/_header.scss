@@ -61,6 +61,17 @@ $nav-underline-radius: 2px;
   transform: translateY(-100%);
 }
 
+// Set by `useReleaseNearFooter` for a release that isn't the visitor's own
+// scrolling - most plausibly, it correcting an early misreading of the
+// footer's position while the page's real content was still loading, on a
+// page short enough that the footer sat inside the viewport for a moment.
+// Animating that looks like the header sliding onto the page for no reason,
+// since nothing the visitor did caused it; snapping straight to the correct
+// state reads as though nothing happened, which here is the correct read.
+.site-nav.header-releases-sticky-instant {
+  transition: none;
+}
+
 .site-nav *,
 .site-nav *::before,
 .site-nav *::after {
@@ -408,27 +419,18 @@ $nav-underline-radius: 2px;
   // the viewport with no way to reach what's below the fold.
   max-height: #{"calc(100vh - #{brand.$spacing-16} - #{brand.$spacing-8})"};
   overflow-y: auto;
-  // Without this, a row scrolled to the top or bottom edge can come to rest
-  // half cut off by the menu's own rounded border - most visible on a row's
-  // icon, whose curve makes a hard clip line obvious in a way a clipped line
-  // of text isn't. Snapping means scrolling always settles on a whole row.
-  scroll-snap-type: y mandatory;
-}
-
-.site-nav .nav-menu > * {
-  scroll-snap-align: start;
 }
 
 .site-nav .nav-menu-lang {
   min-width: 192px;
 }
 
-// Burger menu hangs off the left edge instead.
+// The burger trigger sits on the right of the bar, same side as the locale
+// and profile triggers, so this dropdown needs no anchor override of its own
+// - it inherits the base `.nav-menu` rule's right edge. Only its width is
+// narrower than theirs.
 .site-nav .nav-menu-main {
-  right: auto;
-  left: 0;
   min-width: 240px;
-  transform-origin: top left;
 }
 
 .site-nav .nav-menu-anim-enter {
@@ -670,67 +672,13 @@ $nav-underline-radius: 2px;
   outline-offset: -#{brand.$focus-ring-width};
 }
 
-// ---------------------------------------------------------------- collapse
-
-// Scoped to the site bar rather than written against the bare `.nav-*` classes:
-// the learning header (see the learning variant below) reuses the same locale
-// button, avatar and auth buttons, but has no navigation links and so no burger
-// to collapse them into. Hiding them there would leave the visitor no way to
-// change language or reach their account at all. `:not()` rather than a plain
-// `.site-nav` prefix, because `.site-nav-learning` carries `.site-nav` too.
-@media (max-width: $nav-collapse) {
-  .site-nav:not(.site-nav-learning) .nav-links,
-  .site-nav:not(.site-nav-learning) .nav-locale-wrap,
-  .site-nav:not(.site-nav-learning) .nav-profile-wrap,
-  .site-nav:not(.site-nav-learning) .nav-auth {
-    display: none;
-  }
-
-  // Left unscoped: only the site bar renders a burger at all, so this rule has
-  // nothing to match anywhere else.
-  .nav-burger-wrap {
-    display: block;
-  }
-
-  .site-nav:not(.site-nav-learning) .nav-left {
-    gap: brand.$spacing-2;
-  }
-
-  // max-height, overflow-y and scroll-snap now live on the shared .nav-menu
-  // base rule above; only the narrower width is specific to this variant.
-  .site-nav .nav-menu-main {
-    min-width: #{"min(292px, calc(100vw - #{brand.$spacing-8}))"};
-  }
-
-  .nav-brand-name {
-    font-size: #{"clamp(14px, 4.4vw, #{brand.$font-size-h4})"};
-  }
-}
-
-// Above the collapse breakpoint the bar still carries every navigation link, but
-// below this width there is no room for the wordmark beside them. The logo alone
-// continues to link home and the link keeps its accessible name, so only the
-// visible text is dropped - and with it the marker that underlines that text.
-@media (min-width: #{$nav-collapse + 1px}) and (max-width: 899px) {
-  .nav-left {
-    gap: brand.$spacing-4;
-  }
-
-  .nav-brand-name {
-    display: none;
-  }
-
-  .nav-brand-active::after {
-    content: none;
-  }
-}
-
 // ---------------------------------------------------------------- learning variant
 
-// The course player's header. Same bar, same controls, but the course title
-// stands where the wordmark and navigation links do on the site bar - so there
-// is nothing here to collapse into a burger, and every control stays visible at
-// each width (see the collapse section above).
+// The course player's header. Same bar, same controls, same collapse into a
+// burger below the breakpoint - the course title just stands where the
+// wordmark and navigation links do on the site bar. The burger holds the
+// locale list, the account rows and, when configured, a Help row; it has no
+// nav-link rows of its own to add, since this header carries none.
 //
 // Static rather than sticky, unlike the site bar: the courseware page already
 // stacks its own `position: sticky; top: 0` elements - the sequence navigation
@@ -755,6 +703,14 @@ $nav-underline-radius: 2px;
 
 // The course title takes the wordmark's place beside the logo: same type scale,
 // and the same shrink-before-the-actions-do behaviour, but it is not a link.
+//
+// Line-height is explicit and taller than `$line-height-h4` on purpose: this
+// is the one line in the header that can carry a Tibetan run - see
+// `.course-title-tibetan` below - and `overflow: hidden` below clips to
+// whatever height this line box actually is. A generous explicit value,
+// rather than leaving the browser's own per-font "normal" calculation to
+// size the box, is what guarantees headroom for a stacking consonant-and-
+// vowel combination taller than this particular sample happened to need.
 .nav-course-title {
   display: flex;
   align-items: center;
@@ -764,7 +720,7 @@ $nav-underline-radius: 2px;
   font-family: brand.$font-family-brand-ui;
   font-size: brand.$font-size-h4;
   font-weight: brand.$font-weight-semibold;
-  line-height: brand.$line-height-h4;
+  line-height: 2;
 }
 
 // One line, clipped with an ellipsis. A course title is arbitrary length and
@@ -774,6 +730,20 @@ $nav-underline-radius: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// Applied by `LearningHeaderCourseInfo` to the Tibetan-Unicode run within a
+// mixed-script title, matching it to the em-size of the rest of the line
+// (1em, not larger) and dropping the bold weight `.course-title` applies to
+// everything else. Jomolhari has no true bold face of its own, so asking for
+// one makes the browser fake it by stretching the glyphs - and its stacked
+// consonant clusters and vowel signs are already visually tall for their
+// nominal font-size, so that synthetic bold was pushing marks taller than
+// `.nav-course-title`'s line-height, clipped by the `overflow: hidden` above.
+.course-title-tibetan {
+  font-family: brand.$font-family-jomolhari, serif;
+  font-size: 1em;
+  font-weight: normal;
 }
 
 // Sits beside the locale button, so it is styled as a quiet link rather than as
@@ -802,14 +772,85 @@ $nav-underline-radius: 2px;
   background-color: brand.$color-dusk;
 }
 
-// Below the narrowest widths the course title alone earns the room; the help
-// link is reachable from the account menu's destinations either way.
+
+// ---------------------------------------------------------------- collapse
+
+// Both header variants collapse into a burger the same way - the learning
+// header has no navigation links of its own, but its burger still holds the
+// locale list, the account rows and (when configured) a Help row, so hiding
+// the wide-only controls here is correct for it too.
 @media (max-width: $nav-collapse) {
+  // `.nav-links` and `.nav-menu-main` are matched at `.site-nav .nav-links` /
+  // `.site-nav .nav-menu-main` above (two classes), so their overrides here
+  // need the same `.site-nav` prefix to win at equal specificity - a bare
+  // single-class selector loses to that base rule regardless of which comes
+  // later in the file.
+  .site-nav .nav-links,
+  .nav-locale-wrap,
+  .nav-profile-wrap,
+  .nav-auth,
   .nav-help {
     display: none;
+  }
+
+  .nav-burger-wrap {
+    display: block;
+  }
+
+  .nav-left {
+    gap: brand.$spacing-2;
+  }
+
+  // max-height, overflow-y and scroll-snap now live on the shared .nav-menu
+  // base rule above; only the narrower width is specific to this variant.
+  .site-nav .nav-menu-main {
+    min-width: #{"min(292px, calc(100vw - #{brand.$spacing-8}))"};
+  }
+
+  .nav-brand-name {
+    font-size: #{"clamp(14px, 4.4vw, #{brand.$font-size-h4})"};
   }
 
   .nav-course-title {
     font-size: brand.$font-size-caption;
   }
+}
+
+// Above the collapse breakpoint the bar still carries every navigation link, but
+// below this width there is no room for the wordmark beside them. The logo alone
+// continues to link home and the link keeps its accessible name, so only the
+// visible text is dropped - and with it the marker that underlines that text.
+@media (min-width: #{$nav-collapse + 1px}) and (max-width: 899px) {
+  .nav-left {
+    gap: brand.$spacing-4;
+  }
+
+  .nav-brand-name {
+    display: none;
+  }
+
+  .nav-brand-active::after {
+    content: none;
+  }
+}
+
+// ---------------------------------------------------------------- overrides
+
+// Hides the learning header's Help link at every width. Last in the file so it
+// wins the cascade at matching specificity, regardless of where `.nav-help` is
+// otherwise styled or unhidden (e.g. the collapse media query above already
+// hides it below 600px; this hides it above that width too).
+.nav-help {
+  display: none;
+}
+
+// The same Help entry, as it appears inside the learning header's burger menu:
+// a plain `.nav-menu-item` row rendered by `MobileNavItems`, indistinguishable
+// by class from any other row - `MobileNavItems` gives every row the same
+// class regardless of what it links to. It is always the first (and, today,
+// only) item in that header's `navItems`, so `:first-child` picks it out
+// without touching the site header's own nav-link rows, which live under
+// plain `.site-nav .nav-menu-main`, not `.site-nav-learning`.
+.site-nav-learning .nav-menu-main > .nav-menu-item:first-child {
+  display: none;
 }
