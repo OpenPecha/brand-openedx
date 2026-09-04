@@ -61,6 +61,17 @@ $nav-underline-radius: 2px;
   transform: translateY(-100%);
 }
 
+// Set by `useReleaseNearFooter` for a release that isn't the visitor's own
+// scrolling - most plausibly, it correcting an early misreading of the
+// footer's position while the page's real content was still loading, on a
+// page short enough that the footer sat inside the viewport for a moment.
+// Animating that looks like the header sliding onto the page for no reason,
+// since nothing the visitor did caused it; snapping straight to the correct
+// state reads as though nothing happened, which here is the correct read.
+.site-nav.header-releases-sticky-instant {
+  transition: none;
+}
+
 .site-nav *,
 .site-nav *::before,
 .site-nav *::after {
