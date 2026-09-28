@@ -8,20 +8,64 @@
 @use "./variables" as brand;
 @import "./overrides";
 
+// Small uppercase label: field labels, certificate type, credential ID label.
+@mixin pf-eyebrow($font-size) {
+  font-size: $font-size;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: brand.$color-clay;
+}
+
+// Quiet outlined button: the Edit pill and the form's Cancel button.
+// `!important` because _overrides.scss's global .btn-link/.btn-outline-primary
+// rules set these same properties with `!important`.
+@mixin pf-outline-button($border-color) {
+  border-color: $border-color !important;
+  color: brand.$color-deep-saffron !important;
+
+  &:hover:not(:disabled):not(.disabled) {
+    border-color: brand.$color-deep-saffron !important;
+    color: brand.$color-deep-brown !important;
+    background: brand.$color-linen !important;
+  }
+}
+
 .profile-page {
 
   /*  ========================================================================
       Hero: banner + avatar + identity block
       ======================================================================== */
 
+  // Shared content column: the banner, identity block, profile fields and
+  // certificates all sit on the same width and side gutters, so their edges
+  // line up at every screen size.
+  .pf-banner-wrap,
+  .pf-id,
+  .pf-page,
+  .pf-certs {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-left: 40px;
+    padding-right: 40px;
+
+    @media (max-width: 900px) {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    @media (max-width: 640px) {
+      padding-left: 18px;
+      padding-right: 18px;
+    }
+  }
+
   .pf-band {
     background: brand.$color-white;
   }
 
   .pf-banner-wrap {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 26px 40px 0;
+    padding-top: 26px;
   }
 
   .pf-banner {
@@ -45,12 +89,6 @@
       background: var(--pf-banner-logo, none) no-repeat center / contain;
       pointer-events: none;
     }
-  }
-
-  .pf-id {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 40px;
   }
 
   // Avatar: driven off ProfileAvatar.jsx's existing internal classnames,
@@ -82,15 +120,6 @@
         width: 58%;
         height: 58%;
         color: brand.$color-clay !important;
-      }
-
-      // Upload/remove-in-progress spinner. `.text-primary` is a Bootstrap
-      // utility class baked into Paragon's compiled CSS with Paragon's own
-      // default (blue) primary color and `!important` — brand's `$primary`
-      // override only affects brand's own rules, not that pre-built
-      // utility, so it has to be overridden directly here too.
-      .spinner-border.text-primary {
-        color: brand.$color-deep-saffron !important;
       }
     }
 
@@ -259,9 +288,8 @@
       ======================================================================== */
 
   .pf-page {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 56px 40px 88px;
+    padding-top: 56px;
+    padding-bottom: 88px;
   }
 
   .pf-grid {
@@ -307,11 +335,7 @@
       gap: 7px;
       margin: 0 !important;
       font-family: brand.$font-family-brand-ui;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2.2px;
-      text-transform: uppercase;
-      color: brand.$color-clay;
+      @include pf-eyebrow(12px);
     }
 
     // Field value. Existing class shared by EditableItemHeader.jsx and the
@@ -401,18 +425,16 @@
       gap: 7px;
       min-height: 38px;
       padding: 9px 16px !important;
-      border: 1.5px solid brand.$color-dusk !important;
+      border-width: 1.5px !important;
+      border-style: solid !important;
       border-radius: brand.$border-radius-md;
-      color: brand.$color-deep-saffron !important;
       background: brand.$color-white !important;
       font-size: 14px;
       font-weight: 600;
+      @include pf-outline-button(brand.$color-dusk);
 
       &:hover:not(:disabled) {
-        color: brand.$color-deep-brown !important;
-        background: #FBF4E6 !important;
         text-decoration: none;
-        border-color: brand.$color-deep-saffron !important;
       }
 
       svg {
@@ -496,14 +518,7 @@
   // than the global .btn-outline-primary (which uses the deep-saffron border
   // brand-wide) — scoped here since it's a profile-specific nuance.
   .btn-outline-primary {
-    border-color: brand.$color-bark !important;
-    color: brand.$color-deep-saffron !important;
-
-    &:hover:not(:disabled):not(.disabled) {
-      border-color: brand.$color-deep-saffron !important;
-      color: brand.$color-deep-brown !important;
-      background: #FBF4E6 !important;
-    }
+    @include pf-outline-button(brand.$color-bark);
   }
 
   /*  ========================================================================
@@ -511,9 +526,7 @@
       ======================================================================== */
 
   .pf-certs {
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 40px 96px;
+    padding-bottom: 96px;
   }
 
   .pf-certs-empty {
@@ -583,11 +596,7 @@
   }
 
   .certificate-eyebrow {
-    font-size: 11px;
-    letter-spacing: 2.4px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: brand.$color-clay;
+    @include pf-eyebrow(11px);
   }
 
   .certificate-eyebrow-verified {
@@ -639,11 +648,7 @@
     span {
       display: block;
       margin-bottom: 4px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: brand.$color-clay;
+      @include pf-eyebrow(11px);
     }
 
     code {
@@ -664,10 +669,15 @@
 
   .height-50vh {
     height: 50vh;
+  }
 
-    .spinner-border.text-primary {
-      color: brand.$color-deep-saffron !important;
-    }
+  // Every spinner on the page (photo upload/remove, page loading).
+  // `.text-primary` is a Bootstrap utility class baked into Paragon's
+  // compiled CSS with Paragon's own default (blue) primary color and
+  // `!important` — brand's `$primary` override only affects brand's own
+  // rules, not that pre-built utility, so it has to be overridden directly.
+  .spinner-border.text-primary {
+    color: brand.$color-deep-saffron !important;
   }
 
   /*  ========================================================================
@@ -675,14 +685,9 @@
       ======================================================================== */
 
   @media (max-width: 900px) {
-    .pf-id,
-    .pf-certs {
-      padding-left: 24px;
-      padding-right: 24px;
-    }
-
     .pf-page {
-      padding: 48px 24px 72px;
+      padding-top: 48px;
+      padding-bottom: 72px;
     }
 
     .pf-certs {
@@ -697,7 +702,7 @@
 
   @media (max-width: 640px) {
     .pf-banner-wrap {
-      padding: 16px 18px 0;
+      padding-top: 16px;
     }
 
     .pf-banner {
@@ -713,8 +718,6 @@
     }
 
     .pf-id {
-      padding: 0 18px;
-
       .profile-avatar-wrap {
         width: 104px;
         height: 104px;
@@ -724,7 +727,8 @@
     }
 
     .pf-page {
-      padding: 44px 18px 64px;
+      padding-top: 44px;
+      padding-bottom: 64px;
     }
   }
 }
