@@ -395,15 +395,30 @@
       }
     }
 
-    // Header row (label/value + Edit button), EditableItemHeader.jsx's
-    // existing outer row.
+    // Header row (value + Edit button), EditableItemHeader.jsx's existing
+    // outer row: value on the left, Edit on the right, at every width.
     .d-flex.flex-nowrap.align-items-center {
       justify-content: space-between;
       gap: 16px;
+      // Top-aligned so Edit sits beside the first line of a long value (bio,
+      // links) instead of floating mid-paragraph. `.align-items-center` is a
+      // Bootstrap `!important` utility, hence the `!important` here.
+      align-items: flex-start !important;
 
-      @media (max-width: 640px) {
-        flex-direction: column;
-        align-items: flex-start;
+      // The value takes the free space and wraps; the Edit button keeps its
+      // natural size. On mobile EditableItemHeader.jsx adds `w-90`/`col-1`,
+      // which would squeeze the button into a 1/12 column, so those width
+      // limits are undone here.
+      > :first-child {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: none;
+        overflow-wrap: anywhere;
+      }
+
+      > :last-child {
+        flex: 0 0 auto;
+        max-width: none;
       }
     }
 
@@ -539,7 +554,9 @@
   .pf-cert-grid {
     margin-top: 32px;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    // min() lets a card shrink below 300px on the narrowest phones (320px
+    // leaves ~284px of content width) instead of overflowing the page.
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
     gap: 18px;
   }
 
