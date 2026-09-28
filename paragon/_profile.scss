@@ -28,24 +28,20 @@
     position: relative;
     overflow: hidden;
     height: 210px;
+    border: 1px solid brand.$color-dusk;
     border-radius: 22px;
-    box-shadow: 0 18px 40px rgba(brand.$color-espresso, 0.16);
+    box-shadow: 0 10px 28px rgba(brand.$color-espresso, 0.08);
     background: brand.$profile-banner-background;
 
-    // Watermark: the site's actual configured logo (LOGO_WHITE_URL) isn't a
-    // brand-package file — it's a runtime config value, so it can't be
-    // baked into a CSS url() at build time. ProfilePage.jsx sets the
-    // --pf-banner-logo custom property inline from getConfig(); this only
-    // paints anything once that's set, so nothing shows if the value is
-    // ever empty.
+    // The logo is a runtime config value (--pf-banner-logo, set inline by ProfilePage.jsx), so it can't live in a static url().
     &::after {
       content: '';
       position: absolute;
-      right: 44px;
-      bottom: -34px;
-      width: 196px;
-      height: 196px;
-      opacity: 0.3;
+      right: -60px;
+      bottom: -110px;
+      width: 340px;
+      height: 340px;
+      opacity: 0.22;
       background: var(--pf-banner-logo, none) no-repeat center / contain;
       pointer-events: none;
     }
@@ -189,7 +185,7 @@
   }
 
   .pf-user {
-    margin-top: 16px;
+    margin: 16px 0 0;
     font-family: brand.$font-family-brand-display;
     font-weight: 500;
     font-size: clamp(30px, 3.6vw, 40px);
@@ -197,8 +193,11 @@
     color: brand.$color-espresso;
   }
 
+  // `<p>` carries a browser/Bootstrap default bottom margin (~1rem) that
+  // `margin-top` alone doesn't reset — it was stacking with .pf-facts's own
+  // top margin below instead of collapsing down to the small gap intended.
   .pf-name {
-    margin-top: 6px;
+    margin: 6px 0 0;
     font-size: 18px;
     color: brand.$color-deep-brown;
   }
@@ -288,6 +287,16 @@
     border: 1px solid brand.$color-dusk;
     border-radius: 14px;
     padding: 18px 20px;
+
+    // TransitionReplace pins its root's height to the child and absolutely positions the outgoing child, so padding must live on the children.
+    &.pgn-transition-replace-group {
+      box-sizing: content-box;
+      padding: 0;
+
+      > div {
+        padding: 18px 20px !important;
+      }
+    }
 
     // Field label ("Full name", "Country or region", ...). Existing markup
     // (`<p data-hj-suppress className="h5 font-weight-bold ...">`) shared by
@@ -696,10 +705,10 @@
       border-radius: 16px;
 
       &::after {
-        width: 140px;
-        height: 140px;
-        right: 20px;
-        bottom: -26px;
+        width: 240px;
+        height: 240px;
+        right: -45px;
+        bottom: -80px;
       }
     }
 

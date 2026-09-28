@@ -30,7 +30,8 @@ $color-stone: #A08D78;
 // `url("...") center / cover, linear-gradient(...)` and drop the image under
 // paragon/images/ (see card-imagecap-fallback.png for precedent) — no other
 // file, in brand-openedx or frontend-app-profile, needs to change.
-$profile-banner-background: linear-gradient(120deg, #4A2200 0%, $color-deep-saffron 38%, #A85C14 68%, $color-saffron 100%);
+// "Parchment": light sand tones with the logo as an oversized watermark.
+$profile-banner-background: linear-gradient(120deg, $color-parchment 0%, $color-sand 55%, $color-dusk 100%);
 
 // Semantic colors. These names match the older Indigo/Paragon Sass convention.
 $primary: $color-deep-saffron;
