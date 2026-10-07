@@ -61,3 +61,25 @@ h1, h2, h3, h4, h5, h6,
 .sequence-title {
     font-size: brand.$learning-sequence-title-font-size;
 }
+
+// Donation card on the course home sidebar: a school's link to its own
+// donation page (frontend-app-learning DonationCard). Sits among the
+// .course-sidebar-card sections, so only its own parts are styled here.
+.donation-card {
+    .donation-card-message {
+        // Jomolhari only covers Tibetan (U+0F00-0FFF); other text falls through.
+        font-family: brand.$font-family-course-content;
+        color: brand.$text-color-light;
+        margin-bottom: brand.$spacing-3;
+        overflow-wrap: anywhere;
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        a {
+            color: brand.$link-color;
+            text-decoration: underline;
+        }
+    }
+}
