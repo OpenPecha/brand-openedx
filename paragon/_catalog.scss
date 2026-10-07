@@ -3,6 +3,37 @@
 @use "./variables" as brand;
 @import "./overrides";
 
+// Full-width notice above the homepage hero. The slot renders this as a
+// sibling of .home-hero, so it does not inherit the hero's grid or padding.
+.catalog-announcement {
+  background: brand.$info-bg;
+  color: brand.$info-text;
+  font-family: brand.$font-family-brand-ui;
+  font-size: brand.$font-size-body;
+  font-weight: brand.$font-weight-body;
+  line-height: brand.$line-height-body;
+  padding: brand.$spacing-4 brand.$spacing-8;
+
+  @media (max-width: 900px) {
+    padding: brand.$spacing-3 brand.$spacing-6;
+  }
+
+  @media (max-width: 600px) {
+    padding: brand.$spacing-3 brand.$spacing-4;
+    font-size: brand.$font-size-caption;
+    line-height: brand.$line-height-caption;
+  }
+
+  &__message {
+    // Same cap as .partner-carousel__row. No spacing token lands on 75rem.
+    max-width: 75rem;
+    margin: 0 auto;
+    text-align: center;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+}
+
 // --pc-per-view lives here, not set inline like the other vars, so the media
 // queries below can override it — an inline style always beats a media query.
 .partner-carousel {
