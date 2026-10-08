@@ -7,6 +7,7 @@
 // sibling of .home-hero, so it does not inherit the hero's grid or padding.
 .catalog-announcement {
   position: relative;
+  // Info is also the fallback when the tone class is missing.
   background: brand.$info-bg;
   color: brand.$info-text;
   font-family: brand.$font-family-brand-ui;
@@ -23,6 +24,26 @@
     padding: brand.$spacing-3 brand.$spacing-4;
     font-size: brand.$font-size-caption;
     line-height: brand.$line-height-caption;
+  }
+
+  &--info {
+    background: brand.$info-bg;
+    color: brand.$info-text;
+  }
+
+  &--success {
+    background: brand.$success-bg;
+    color: brand.$success-text;
+  }
+
+  &--warning {
+    background: brand.$warning-bg;
+    color: brand.$warning-text;
+  }
+
+  &--alert {
+    background: brand.$error-bg;
+    color: brand.$error-text;
   }
 
   &__message {
@@ -49,7 +70,7 @@
     border: 0;
     border-radius: brand.$border-radius-full;
     background: transparent;
-    color: brand.$info-text;
+    color: inherit;
     font-family: brand.$font-family-brand-ui;
     font-size: brand.$font-size-h3;
     line-height: 1;
